@@ -1,17 +1,37 @@
-name: Label new partner PRs
+name: Validate Partner Submission
+
 on:
-    pull_request:
-      types:
-        - opened
-        - edited
-        - reopened  
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+
 jobs:
- label:
-   runs-on: ubuntu-latest
-   steps:
-     - name: Add new-partner label
-       if: contains(github.event.pull_request.title, 'to Partner Registry')
-       uses: actions-ecosystem/action-add-labels@v1
-       with:
-         github_token: ${{ secrets.GITHUB_TOKEN }}
-         labels: "new-partner"
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile TypeScript
+        run: npm run build
+
+      - name: Check partners are valid
+        run: npm run check-partners
+
+      - name: Add label if valid
+        if: success()
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: "new-partner"
