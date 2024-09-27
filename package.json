@@ -1,0 +1,33 @@
+{
+    "name": "autonity-partner-registry",
+    "version": "1.0.0",
+    "description": "Sandbox for testing Github features relevant to Engineering",
+    "main": "index.js",
+    "scripts": {
+        "build": "npx tsc",
+        "start": "node dist/generate-partners.js",
+        "test": "jest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/clearmatics/engineering-sandbox.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/clearmatics/engineering-sandbox/issues"
+    },
+    "homepage": "https://github.com/clearmatics/engineering-sandbox#readme",
+    "devDependencies": {
+        "@types/fs-extra": "^11.0.4",
+        "@types/jest": "^29.5.13",
+        "@types/node": "^22.7.3",
+        "jest": "^29.7.0",
+        "prettier": "^3.3.3",
+        "ts-jest": "^29.2.5",
+        "typescript": "^5.6.2"
+    },
+    "dependencies": {
+        "fs-extra": "^11.2.0"
+    }
+}

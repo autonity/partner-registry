@@ -1,0 +1,9 @@
+{
+    "name": "test Exchange",
+    "badge": "https://img.shields.io/badge/Exchange-Test-blue",
+    "short_description": "This is a test exchange",
+    "longDescription": "This is a test exchange, longer description",
+    "url": "https://test.com",
+    "logo": "https://test.com/logo.png",
+    "tags": ["test", "exchange"]
+}

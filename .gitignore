@@ -1,0 +1,16 @@
+# npm project files 
+node_modules/
+.npm
+
+# VIM swap files
+*.swp
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# typescript compiled out
+dist/
