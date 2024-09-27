@@ -71,9 +71,6 @@ function validatePartnerFields(partner: Partner): void {
         if (tag.length > tagCharacterLimit) {
             throw new Error(`'tag' exceeds ${tagCharacterLimit} characters: ${tag}`);
         }
-        if (tag.includes(" ")) {
-            throw new Error(`'tag' should not contain spaces: ${tag}`);
-        }
     }
 
     try {
