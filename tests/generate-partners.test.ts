@@ -14,7 +14,7 @@ describe("Partners Module", () => {
         longDescription: "Mock long description",
         tags: ["mock", "partner"],
         url: "https://mockpartner.com",
-        logo: "https://mockpartner.com/logo.png",
+        logo: "logo.png",
         featured: false
     };
 
@@ -52,22 +52,7 @@ describe("Partners Module", () => {
         });
     });
 
-    describe("getPartnerObject", () => {
-        it("should return partner object with valid logo URL", () => {
-            jest.spyOn(fs, 'readJsonSync').mockReturnValue(validPartner);
-
-            const partner = getPartnerObject(mockPartnerPath);
-            expect(partner).toEqual(validPartner);
-        });
-
-        it("should fallback to logo.png if logo URL is invalid and logo.png exists", () => {
-            const invalidLogoPartner = { ...validPartner, logo: "invalid-url" };
-            jest.spyOn(fs, 'readJsonSync').mockReturnValue(invalidLogoPartner);
-            jest.spyOn(fs, 'existsSync').mockReturnValue(true); // Simulating logo.png exists
-
-            const partner = getPartnerObject(mockPartnerPath);
-            expect(partner!.logo).toBe(path.join(mockPartnerPath, "logo.png"));
-        });
+    describe("getPartnerObject", () => {        
 
         it("should return null if the partner JSON is invalid or an error occurs", () => {
             jest.spyOn(fs, 'readJsonSync').mockImplementation(() => { throw new Error("Invalid JSON") });

@@ -11,6 +11,20 @@ Firstly you need to fork the registry [repo](https://github.com/autonity/partner
 
 #### Step 3: In your project folder you need to add two files: `logo.png` & `info.json`.
 
+The `info.json` file looks like this:
+
+``` typescript
+export interface Partner {
+    name: string; //40 characters max
+    shortDescription: string; // 75 character max description
+    longDescription: string; // 250 character max description
+    tags: string[]; //keywords that best describe your project, max 5 each one no more then 20 characters
+    url: string; // must be a https url
+}
+```
+
+The `logo.png` must be no more than 125x125px
+
 #### Step 4: Create a pull-request containing your updated data.
 
 #### Step 5: Submit Your Pull Request

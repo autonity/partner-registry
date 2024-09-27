@@ -1,7 +1,6 @@
 {
     "name": "test evm naming service",
-    "badge": "https://img.shields.io/badge/Exchange-Test-blue",
-    "short_description": "This is a test exchange",
+    "shortDescription": "This is a test exchange",
     "longDescription": "This is a test exchange, longer description",
     "url": "https://test.com",
     "tags": ["test", "exchange"]

@@ -1,21 +1,13 @@
 import fs from "fs-extra";
 import path from "path";
+import { Partner } from "./interface";
 
 const partnerManifest = "info.json";
 const partnerDir = "../partners";
 const logoPath = "logo.png";
 const partnerStorageName = "partners.json";
 
-interface Partner {
-    name: string;
-    badge: string;
-    shortDescription: string;
-    longDescription: string;
-    tags: string[];
-    url: string;
-    logo: string;
-    featured: boolean;
-}
+
 
 /**
  * Reads all the directories inside the partners directory and returns their path as an array
@@ -68,14 +60,12 @@ export function getPartnerObject(partnerPath: string): Partner | null {
         const partnerJsonPath = path.join(partnerPath, partnerManifest);
         const partner = fs.readJsonSync(partnerJsonPath) as Partner;
 
-        if (!isValidLogoUrl(partner.logo)) {
-            // Check if logo.png exists in the partner directory
-            const logo = path.join(partnerPath, logoPath);
-            if (fs.existsSync(logo)) {
-                partner.logo = logoPath; // we dont want to store the full path, just the name, then we can pull the logo from github
-            } else {
-                throw new Error(`No valid logo provided for ${partner.name}`);
-            }
+        // Check if logo.png exists in the partner directory
+        const logo = path.join(partnerPath, logoPath);
+        if (fs.existsSync(logo)) {
+            partner.logo = logoPath; // we dont want to store the full path, just the name, then we can pull the logo from github
+        } else {
+            throw new Error(`No valid logo provided for ${partner.name}`);
         }
 
         partner.featured = false;
@@ -96,7 +86,7 @@ export function generatePartnerList(): Partner[] {
  * @returns {Partner[]} - array of partner objects
  */
 export function buildPartnersJson(partnerDirectories: string[]): Partner[] {
-    try {        
+    try {
         const partners = partnerDirectories
             .map(getPartnerObject)
             .filter((partner) => partner !== null) as Partner[];

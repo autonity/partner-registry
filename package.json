@@ -6,6 +6,7 @@
     "scripts": {
         "build": "npx tsc",
         "start": "node dist/generate-partners.js",
+        "check-partners": "node dist/validate-partners.js",
         "test": "jest"
     },
     "repository": {
