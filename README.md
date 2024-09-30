@@ -28,6 +28,6 @@ The `logo.png` must be no more than 125x125px
 #### Step 4: Create a pull-request containing your updated data.
 
 #### Step 5: Submit Your Pull Request
-When you submit your PR, please use the following naming convention for the title:
+When you submit your PR, please use the following naming convention for the title: 
 - **Title Format**: `Add <Project Name> to Partner Registry`
 - **Example**: `Add MyProject to Partner Registry`

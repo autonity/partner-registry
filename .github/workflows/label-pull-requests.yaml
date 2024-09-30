@@ -1,12 +1,13 @@
-name: Validate Partner Submission
+name: Validate Partner Registry
 
 on:
   pull_request:
     branches:
       - master
       - develop
+
 jobs:
-  validate:
+  validate:    
     runs-on: ubuntu-latest
 
     steps:
@@ -25,31 +26,32 @@ jobs:
         run: npm run build
 
       - name: Check partners are valid
-        id: check-partners        
-        # run:  echo "validation_report=$(npm run check-partners)" >> $GITHUB_OUTPUT
-        run: |       
-          {        
+        id: check-partners
+        run: |
+          {
             echo 'VALIDATION_RESULTS<<EOF'
             npm run check-partners --silent
             echo EOF
           } >> "$GITHUB_OUTPUT"
           npm run failure-test
-          
+
       - uses: mshick/add-pr-comment@v2
         if: failure()
         with:
           message: |
-            ❌ Partner submission failed. Here are the reasons why
+            ❌ Partner submission failed. Here are the reasons why:
             ```
             ${{ steps.check-partners.outputs.VALIDATION_RESULTS }}
             ```
             Please correct the issues and resubmit.
+
       - name: Add label if valid
-        if: success()
+        if: ${{ success() && contains(github.event.pull_request.title, 'Add ') && contains(github.event.pull_request.title, 'to Partner Registry') }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: "new-partner"
+
       - uses: mshick/add-pr-comment@v2
         with:
           message: |

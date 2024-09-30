@@ -1,7 +1,0 @@
-{
-    "name": "test evm naming service",
-    "shortDescription": "This is a test exchange",
-    "longDescription": "This is a test exchange, longer description",
-    "url": "https://test.com",
-    "tags": ["test", "exchange"]
-}

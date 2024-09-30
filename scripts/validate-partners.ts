@@ -19,76 +19,75 @@ const maxNumberOfTags = 5;
 
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
-function validatePartnerInfo(partnerPath: string): void {
+export function validatePartnerInfo(partnerPath: string): string[] {
+    let errorMessages: string[] = [];
     const infoPath = path.join(partnerPath, 'info.json');
-
     if (!fs.existsSync(infoPath)) {
-        throw new Error(`info.json is missing in ${partnerPath}`);
+        errorMessages.push(`info.json is missing in ${partnerPath}`);
     }
 
     const partnerInfo: Partner = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
-
     requiredFields.forEach((field) => {
         if (!partnerInfo[field]) {
-            throw new Error(`${field} is missing in ${infoPath}`);
+            errorMessages.push(`${field} is missing in ${infoPath}`);
         }
     });
 
     // check for logo.png in the partner directory
     const logoPath = path.join(partnerPath, 'logo.png');
     if (!fs.existsSync(logoPath)) {
-        throw new Error(`logo.png is missing in ${partnerPath}`);
+        errorMessages.push(`logo.png is missing in ${partnerPath}`);
     }
 
     // Check for character limits and valid types
-    validatePartnerFields(partnerInfo);
-
-    console.log(`✅ ${infoPath}`);
+    validatePartnerFields(partnerInfo, errorMessages);
+    return errorMessages
 }
 
-function validatePartnerFields(partner: Partner): void {
+export function validatePartnerFields(partner: Partner, errorMessages: string[]): void {
     if (partner.name.length > nameLimit) {
-        throw new Error(`'name' exceeds ${nameLimit} characters: ${partner.name}`);
+        errorMessages.push(`'name' exceeds ${nameLimit} characters`);
     }
 
     if (partner.shortDescription.length > shortDescriptionLimit) {
-        throw new Error(`'shortDescription' exceeds ${shortDescriptionLimit} characters: ${partner.shortDescription}`);
+        errorMessages.push(`'shortDescription' exceeds ${shortDescriptionLimit} characters`);
     }
 
     if (partner.longDescription.length > longDescriptionLimit) {
-        throw new Error(`'longDescription' exceeds ${longDescriptionLimit} characters: ${partner.longDescription}`);
+        errorMessages.push(`'longDescription' exceeds ${longDescriptionLimit} characters`);
     }
 
     if (!Array.isArray(partner.tags) || partner.tags.length === 0) {
-        throw new Error(`'tags' should be a non-empty array: ${partner.tags}`);
+        errorMessages.push(`'tags' should be a non-empty array`);
     }
 
     if(partner.tags.length > maxNumberOfTags) {
-        throw new Error(`'tags' should not contain more than ${maxNumberOfTags} tags: ${partner.tags}`);
+        errorMessages.push(`'tags' should not contain more than ${maxNumberOfTags} tags`);
     }
 
     for (let tag of partner.tags) {
         if (tag.length > tagCharacterLimit) {
-            throw new Error(`'tag' exceeds ${tagCharacterLimit} characters: ${tag}`);
+            errorMessages.push(`'tag' exceeds ${tagCharacterLimit} characters`);
         }
     }
 
     try {
         const urlObject = new URL(partner.url);
         if (urlObject.protocol !== 'https:') {
-            throw new Error(`'url' should be an HTTPS URL: ${partner.url}`);
+            errorMessages.push(`'url' should be a HTTPS`);
         }
     } catch (error) {
-        throw new Error(`'url' is not a valid URL: ${partner.url}`);
+        errorMessages.push(`'url' is not a valid URL`);
     }
 }
 
 getPartnerDirectories().forEach((partnerPath) => {
     try {
-        validatePartnerInfo(partnerPath);
+        const errorMessages = validatePartnerInfo(partnerPath);
+        if(errorMessages.length > 0) {
+            console.log(errorMessages.join(',\n').trim());
+        }
     } catch (error) {
-        console.log('Failed')
-        console.error(error);
-        process.exit(1);
+        console.log('Problem with your submission')
     }
 });
