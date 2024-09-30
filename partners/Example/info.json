@@ -1,7 +1,7 @@
 {
-    "name": "Granite",
+    "name": "Example Partner",
     "shortDescription": "This is a test partner ",
     "longDescription": "This is a test partner, longer description",
-    "url": "http://test.com",
+    "url": "https://example.com",
     "tags": ["test", "exchange"]
 }
