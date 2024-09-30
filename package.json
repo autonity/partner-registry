@@ -6,8 +6,10 @@
     "scripts": {
         "build": "npx tsc",
         "start": "node dist/generate-partners.js",
+        "compile-partners": "node dist/generate-partners.js",
         "check-partners": "node dist/validate-partners.js",
         "failure-test": "node dist/failure-check.js",
+        "upload": "node dist/upload-layer.js",
         "test": "jest"
     },
     "repository": {
@@ -30,6 +32,8 @@
         "typescript": "^5.6.2"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.658.1",
+        "dotenv": "^16.4.5",
         "fs-extra": "^11.2.0",
         "sharp": "^0.33.5"
     }
