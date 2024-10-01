@@ -6,8 +6,10 @@
     "scripts": {
         "build": "npx tsc",
         "start": "node dist/generate-partners.js",
+        "generate": "node dist/generate-partners.js",
         "check-partners": "node dist/validate-partners.js",
         "failure-test": "node dist/failure-check.js",
+        "upload": "node dist/upload-layer.js",
         "test": "jest"
     },
     "repository": {
