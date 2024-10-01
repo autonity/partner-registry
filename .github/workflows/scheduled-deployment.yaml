@@ -1,0 +1,26 @@
+name: Scheduled CDN Upload
+on:
+  schedule:
+    cron: '0 0 * * *'
+jobs:
+  run-npm-scripts:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        ref: scheduled-scripts # to do change this to master for the partner repository
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - name: Install dependencies
+      run: npm install
+    - name: Compile TypeScript
+      run: npm run build
+    - name: Check partners are valid
+      run: npm run failure-test
+    - name: Generate partner list
+      run: npm run generate
+    - name: Upload to CDN
+      run: npm run upload
