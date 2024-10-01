@@ -8,7 +8,6 @@ const BUCKET_NAME = process.env.BUCKET_NAME ?? "";
 const OBJECT_KEY = process.env.OBJECT_KEY ?? "";
 const FILE_PATH = process.env.FILE_PATH ?? "";
 const ACCOUNT_ID = process.env.ACCOUNT_ID ?? "";
-const ENDPOINT = `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
 const run = async () => {
     const s3Client = new S3Client({
