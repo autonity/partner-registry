@@ -1,7 +1,7 @@
 name: Scheduled CDN Upload
 on:
   schedule:
-    - cron: "0 14 * * *"
+    - cron: "0 0 * * *"
 jobs:
   run-npm-scripts:
     runs-on: ubuntu-latest
@@ -23,4 +23,12 @@ jobs:
       - name: Generate partner list
         run: npm run generate
       - name: Upload to CDN
+        env:  
+          ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+          ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+          FILE_PATH: ${{ secrets.FILE_PATH }}
+          OBJECT_KEY: ${{ secrets.OBJECT_KEY }}
+          REGION: ${{ secrets.REGION }}
         run: npm run upload
