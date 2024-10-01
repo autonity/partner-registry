@@ -1,3 +1,4 @@
+[![Scheduled CDN Upload](https://github.com/autonity/partner-registry/actions/workflows/scheduled-deployment.yaml/badge.svg)](https://github.com/autonity/partner-registry/actions/workflows/scheduled-deployment.yaml)
 # ECOSYSTEM Partner Registry
 
 How to add your project to our [Partner-Registry](https://github.com/autonity/partner-registry) repo.
