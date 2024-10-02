@@ -3,7 +3,7 @@
 
 How to add your project to our [Partner-Registry](https://github.com/autonity/partner-registry) repo.
 
-## Getting Started
+## Adding your project to the Partner Registry
 Firstly you need to fork the registry [repo](https://github.com/autonity/partner-registry), clone it locally and open in your favorite editor.
 
 #### Step 1: Select the `partners/` folder.
@@ -32,3 +32,20 @@ The `logo.png` must be no more than 125x125px
 **When you submit your PR, please use the following naming convention for the title:**
 - **Title Format**: `Add <Project Name> to Partner Registry`
 - **Example**: `Add MyProject to Partner Registry`
+
+### Development
+
+This section will focus on setting up the project locally.
+
+#### Prerequisites
+- Node.js
+- npm
+- typescript
+
+#### Setup
+
+1. Clone the repository
+2. Run `npm install`
+
+Check the `package.json` for more scripts.
+
