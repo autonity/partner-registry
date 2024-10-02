@@ -33,6 +33,15 @@ The `logo.png` must be no more than 125x125px
 - **Title Format**: `Add <Project Name> to Partner Registry`
 - **Example**: `Add MyProject to Partner Registry`
 
+If you are successfull, your PR will have a `new-partner` label applied to it:
+![Success Bot Label](resources/tutorial/success-label.png)
+
+And a success comment
+![Success Bot Comment](resources/tutorial/success-bot-comment.png)
+
+If your PR failed validity checks, a bot will comment on the reasons why
+![Failure bot comment](resources/tutorial/failure-bot-comment.png)
+
 ### Development
 
 This section will focus on setting up the project locally.
