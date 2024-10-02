@@ -63,12 +63,12 @@ async function checkImageDimensions(filePath: string): Promise<string[]> {
         const { width, height } = await sharp(filePath).metadata();
 
         if (!width || !height) {
-            errorMessages.push('Image metadata could not be read.');
+            errorMessages.push('image metadata could not be read');
         } else if (width > maxImageWidth || height > maxImageHeight) {
-            errorMessages.push(`Image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels.`);
+            errorMessages.push(`image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels`);
         }
     } catch (error) {
-        errorMessages.push('Error reading image metadata.');
+        errorMessages.push('Error reading image metadata');
     } finally {
         return errorMessages;
     }
