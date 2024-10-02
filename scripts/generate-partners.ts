@@ -74,8 +74,7 @@ export function getPartnerObject(partnerPath: string): Partner | null {
 
         partner.featured = false;
         return partner;
-    } catch (error) {
-        console.error(`Error processing partner in ${partnerPath}:`, error);
+    } catch (error) {        
         return null;
     }
 }
@@ -95,8 +94,7 @@ export function buildPartnersJson(partnerDirectories: string[]): Partner[] {
             .map(getPartnerObject)
             .filter((partner) => partner !== null) as Partner[];
         return partners;
-    } catch (error) {
-        console.error("Error generating partners JSON:", error);
+    } catch (error) {        
         return [];
     }
 }

@@ -13,59 +13,66 @@ interface Partner {
     url: string;
 }
 
-const shortDescriptionLimit = 75;
-const longDescriptionLimit = 250;
-const nameLimit = 40;
-const tagCharacterLimit = 20;
-const maxNumberOfTags = 5;
-const maxImageWidth = 125;
-const maxImageHeight = 125;
+export const shortDescriptionLimit = 75;
+export const longDescriptionLimit = 250;
+export const nameLimit = 40;
+export const tagCharacterLimit = 20;
+export const maxNumberOfTags = 5;
+export const maxImageWidth = 125;
+export const maxImageHeight = 125;
 
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
 export async function validatePartnerInfo(partnerPath: string): Promise<string[]> {
+
     const infoPath = path.join(partnerPath, 'info.json');
     const logoPath = path.join(partnerPath, 'logo.png');
     let errorMessages: string[] = [];
-    
+
     if (!fs.existsSync(infoPath)) {
         errorMessages.push(`info.json is missing in ${partnerPath}`);
+        return errorMessages;
     }
 
-    const partnerInfo: Partner = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
-    requiredFields.forEach((field) => {
-        if (!partnerInfo[field]) {
-            errorMessages.push(`${field} is missing in ${infoPath}`);
+    try {
+        const partnerInfo: Partner = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
+        requiredFields.forEach((field) => {
+            if (!partnerInfo[field]) {
+                errorMessages.push(`${field} is missing in ${infoPath}`);
+            }
+        });
+
+        if (!fs.existsSync(logoPath)) {
+            errorMessages.push(`logo.png is missing in ${partnerPath}`);
         }
-    });
 
-    if (!fs.existsSync(logoPath)) {
-        errorMessages.push(`logo.png is missing in ${partnerPath}`);
+        errorMessages = errorMessages.concat(await checkImageDimensions(logoPath));
+        // Check for character limits and valid types
+        validatePartnerFields(partnerInfo, errorMessages);
+
+        return errorMessages
+    } catch (error) {
+        errorMessages.push(`info.json contains invalid JSON in ${partnerPath}`);
+        return errorMessages;
     }
-
-    errorMessages = errorMessages.concat(await checkImageDimensions(logoPath));
-
-    // Check for character limits and valid types
-    validatePartnerFields(partnerInfo, errorMessages);
-    return errorMessages
 }
 
-async function checkImageDimensions(filePath: string): Promise<string []> {
+async function checkImageDimensions(filePath: string): Promise<string[]> {
     const errorMessages: string[] = [];
     try {
-      const {width, height} = await sharp(filePath).metadata();
+        const { width, height } = await sharp(filePath).metadata();
 
-      if (!width || !height) {
-        errorMessages.push('Image metadata could not be read.');
-      } else if (width > maxImageWidth || height > maxImageHeight) {
-        errorMessages.push(`Image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels.`);
-      }
+        if (!width || !height) {
+            errorMessages.push('Image metadata could not be read.');
+        } else if (width > maxImageWidth || height > maxImageHeight) {
+            errorMessages.push(`Image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels.`);
+        }
     } catch (error) {
         errorMessages.push('Error reading image metadata.');
     } finally {
         return errorMessages;
     }
-  }
+}
 
 export function validatePartnerFields(partner: Partner, errorMessages: string[]): void {
     if (partner.name.length > nameLimit) {
@@ -84,7 +91,7 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
         errorMessages.push(`'tags' should be a non-empty array`);
     }
 
-    if(partner.tags.length > maxNumberOfTags) {
+    if (partner.tags.length > maxNumberOfTags) {
         errorMessages.push(`'tags' should not contain more than ${maxNumberOfTags} tags`);
     }
 
@@ -106,7 +113,7 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
 
 getPartnerDirectories().forEach((partnerPath) => {
     validatePartnerInfo(partnerPath).then((errorMessages) => {
-        if(errorMessages.length > 0) {
+        if (errorMessages.length > 0) {
             console.log(errorMessages.join(',\n').trim());
         }
     }).catch((error) => {
