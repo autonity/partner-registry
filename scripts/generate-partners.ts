@@ -6,9 +6,7 @@ const partnerManifest = "info.json";
 const partnerDir = "../partners";
 const logoPath = "logo.png";
 const partnerStorageName = "partners.json";
-
-
-
+const examplePartnerName = "example";
 /**
  * Reads all the directories inside the partners directory and returns their path as an array
  * @returns {string[]} Array of paths to the directories inside the partners directory
@@ -21,9 +19,13 @@ export function getPartnerDirectories(): string[] {
             return [];
         }
 
+        // gets all the directories in the partners directory, filters out {examplePartnerName}
         return fs
             .readdirSync(partnersDir)
-            .map((dir) => path.join(partnersDir, dir));
+            .map((dir) => path.join(partnersDir, dir))
+            .filter(
+                (dir) => dir !== path.join(partnersDir, examplePartnerName)
+            );
     } catch (error) {
         console.error("Error reading partner directories:", error);
         return [];
@@ -43,7 +45,9 @@ export function isValidLogoUrl(url: string): boolean {
         const validExtensions = [".png", ".jpg", ".webp", ".svg"];
         const urlObj = new URL(url);
         const extension = path.extname(urlObj.pathname);
-        return urlObj.protocol === "https:" && validExtensions.includes(extension);
+        return (
+            urlObj.protocol === "https:" && validExtensions.includes(extension)
+        );
     } catch (error) {
         console.error("Error validating logo URL:", error);
         return false;
