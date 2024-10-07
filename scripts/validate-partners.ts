@@ -6,11 +6,14 @@ import sharp from 'sharp';
 import { Partner } from './interface';
 import { maxImageWidth, maxImageHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultLogoName, partnerFileName } from './constants';
 
-
-
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
-//type guard
+/**
+ * Type guard to check if an object conforms to the Partner interface.
+ * 
+ * @param {any} obj - The object to be checked.
+ * @returns {obj is Partner} - Returns true if the object matches the Partner interface.
+ */
 export function isPartner(obj: any): obj is Partner {
     return typeof obj.name === 'string' &&
         typeof obj.shortDescription === 'string' &&
@@ -20,6 +23,12 @@ export function isPartner(obj: any): obj is Partner {
         typeof obj.featured === 'boolean';
 }
 
+/**
+ * Validates partner information found at the given path.
+ * 
+ * @param {string} partnerPath - The path to the partner directory.
+ * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages.
+ */
 export async function validatePartnerInfo(partnerPath: string): Promise<string[]> {
 
     const fullPartnerPath = path.join(partnerPath, partnerFileName);
@@ -54,6 +63,12 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
     }
 }
 
+/**
+ * Checks the dimensions of the partner's logo.
+ * 
+ * @param {string} filePath - The file path to the image.
+ * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages if the image is invalid.
+ */
 async function checkImageDimensions(filePath: string): Promise<string[]> {
     const errorMessages: string[] = [];
     try {
@@ -71,6 +86,13 @@ async function checkImageDimensions(filePath: string): Promise<string[]> {
     }
 }
 
+/**
+ * Validates partner fields such as name, description, tags, and URL.
+ * 
+ * @param {Partner} partner - The partner object to be validated.
+ * @param {string[]} errorMessages - An array of error messages that will be appended to if any validations fail.
+ * @returns {void}
+ */
 export function validatePartnerFields(partner: Partner, errorMessages: string[]): void {
     if (partner.name.length > nameLimit) {
         errorMessages.push(`'name' exceeds ${nameLimit} characters`);
@@ -108,6 +130,10 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
     }
 }
 
+/**
+ * Retrieves partner directories and validates the partner info for each directory.
+ * Logs any error messages found during validation.
+ */
 getPartnerDirectories().forEach((partnerPath) => {
     validatePartnerInfo(partnerPath).then((errorMessages) => {
         if (errorMessages.length > 0) {

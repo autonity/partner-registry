@@ -15,6 +15,12 @@ export interface YamlPartner {
     url: string;
 }
 
+/**
+ * Converts a YamlPartner object into a Partner object.
+ *
+ * @param {YamlPartner} yamlPartner - The YamlPartner object to convert.
+ * @returns {Partner} - The converted Partner object with additional fields.
+ */
 export const convertYamlPartnerToPartner = (yamlPartner: YamlPartner): Partner => {
     return {
         name: yamlPartner.name,
