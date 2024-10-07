@@ -1,16 +1,30 @@
 // __tests__/validatePartnerInfo.test.ts
-
-import { validatePartnerInfo, maxImageHeight, maxImageWidth } from '../scripts/validate-partners'; // Adjust the path as needed
+import { maxImageHeight, maxImageWidth } from '../scripts/constants';
+import { validatePartnerInfo } from '../scripts/validate-partners'; // Adjust the path as needed
 import * as path from 'path';
 import sharp from 'sharp';
 import mockFs from 'mock-fs';
 
 jest.mock('sharp');
-
 describe('validatePartnerInfo', () => {
     const mockedSharp = sharp as jest.MockedFunction<typeof sharp>;
     const partnerPath = '/path/to/partner';
-
+    
+    const mockResults =  {
+        'info.yaml': `
+    name: "Mock Partner"
+    badge: "mockBadge"
+    short_description: "Mock short description"
+    long_description: "Mock long description"
+    tags:
+      - "mock"
+      - "partner"
+    url: "https://mockpartner.com"
+    logo: "logo.png"
+    featured: false
+    `,
+        'logo.png': 'fake-image-data'
+    }
     beforeEach(() => {
         jest.resetAllMocks();
     });
@@ -19,7 +33,7 @@ describe('validatePartnerInfo', () => {
         mockFs.restore();
     });
 
-    it('should return an error if info.json is missing', async () => {
+    it('should return an error if info.yaml is missing', async () => {
         mockFs({
             [partnerPath]: {
                 'logo.png': 'fake-image-data',
@@ -33,22 +47,12 @@ describe('validatePartnerInfo', () => {
 
         const errors = await validatePartnerInfo(partnerPath);
 
-        expect(errors).toContain(`info.json is missing in ${partnerPath}`);
+        expect(errors).toEqual(["info.yaml is missing in /path/to/partner"]);
     });
 
     it('should return no errors for valid partner info', async () => {        
         mockFs({
-            [partnerPath]: {
-                'info.json': JSON.stringify({
-                    name: "Autonity",
-                    shortDescription: "A blockchain ",
-                    longDescription: "A blockchain platform with Newton as a currency.",
-                    tags: ["Autonity", "Blockchain", "Newton", "Explorer"],
-                    url: "https://www.autonity.org"
-                }),
-                'logo.png': 'fake-image-data', // Mock image data as needed
-                'README.md': 'Some readme content'
-            }
+            [partnerPath]: mockResults
         });
 
         mockedSharp.mockReturnValue({
@@ -60,11 +64,11 @@ describe('validatePartnerInfo', () => {
         expect(errors).toHaveLength(0);
     });
 
-    it('should return an error for invalid JSON in info.json', async () => {
+    it('should return an error for invalid attributes in info.yaml', async () => {
         
         mockFs({
             [partnerPath]: {
-                'info.json': "{ invalidJson: true, }",
+                'info.yaml': "name_thing: 'yes'",
                 'logo.png': 'fake-image-data',
                 'README.md': 'Some readme content'
             }
@@ -76,30 +80,21 @@ describe('validatePartnerInfo', () => {
 
         const errors = await validatePartnerInfo(partnerPath);
 
-        expect(errors).toContain(`info.json contains invalid JSON in ${partnerPath}`);
+        expect(errors).toEqual( ["name is missing in /path/to/partner/info.yaml", "shortDescription is missing in /path/to/partner/info.yaml", "longDescription is missing in /path/to/partner/info.yaml", "tags is missing in /path/to/partner/info.yaml", "url is missing in /path/to/partner/info.yaml", "info.yaml contains invalid data in /path/to/partner"]);
     });
 
     it('should error if image dimensions are too big', async () => {        
         mockFs({
-            [partnerPath]: {
-                'info.json': JSON.stringify({
-                    name: "Autonity",
-                    shortDescription: "A blockchain ",
-                    longDescription: "A blockchain platform with Newton as a currency.",
-                    tags: ["Autonity", "Blockchain", "Newton", "Explorer"],
-                    url: "https://www.autonity.org"
-                }),
-                'logo.png': 'fake-image-data', // Mock image data as needed
-                'README.md': 'Some readme content'
-            }
+            [partnerPath]: mockResults
         });
 
         mockedSharp.mockReturnValue({
             metadata: jest.fn().mockResolvedValue({ width: 126, height: 126 }),
         } as any);
 
-        const errors = await validatePartnerInfo(partnerPath);        
-        expect(errors).toContain(`Image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels.`);
+        const errors = await validatePartnerInfo(partnerPath);
+        expect(errors).toEqual([`image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels`]);
+
     });
 
 });
