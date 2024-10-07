@@ -12,14 +12,12 @@ const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDesc
 
 //type guard
 export function isPartner(obj: any): obj is Partner {
-    return typeof obj === 'object' &&
-        typeof obj.name === 'string' &&
-        typeof obj.short_description === 'string' &&
-        typeof obj.long_description === 'string' &&
+    return typeof obj.name === 'string' &&
+        typeof obj.shortDescription === 'string' &&
+        typeof obj.longDescription === 'string' &&
         Array.isArray(obj.tags) && obj.tags.every((tag: string) => typeof tag === 'string') &&
         typeof obj.url === 'string' &&
-        typeof obj.featured === 'boolean' &&
-        typeof obj.logo === 'string';
+        typeof obj.featured === 'boolean';
 }
 
 export async function validatePartnerInfo(partnerPath: string): Promise<string[]> {

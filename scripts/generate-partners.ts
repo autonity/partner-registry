@@ -2,8 +2,8 @@ import { examplePartnerName, partnerDir, partnerFileName, partnerStorageName } f
 import fs from "fs-extra";
 import path from "path";
 import { Partner } from "./interface";
-import { isPartner } from "./validate-partners";
 import { getJsonfromYaml } from "./translation-layer";
+import { isPartner } from "./validate-partners";
 
 
 /**
@@ -60,11 +60,10 @@ export function isValidLogoUrl(url: string): boolean {
  */
 export function getPartnerObject(partnerPath: string): Partner {
     try {
-        const partner = getJsonfromYaml(partnerPath);      
-       
+        const partner = getJsonfromYaml(partnerPath);    
         partner.featured = false;
         return partner;
-    } catch (error) {        
+    } catch (error) {
         throw new Error(`Invalid partner object for ${partnerPath}`);
     }
 }
@@ -80,12 +79,14 @@ export function generatePartnerList(): Partner[] {
  */
 export function buildPartnersJson(partnerDirectories: string[]): Partner[] {
     try {
-        console.log('number of partners:', partnerDirectories.length);
         const partners = partnerDirectories.map((path:string) => getPartnerObject(`${path}/${partnerFileName}`));
-        
-            
+        partners.forEach((partner) => {
+            if(!isPartner(partner)) {
+                throw new Error("Invalid partner object");
+            }
+        });
         return partners;
-    } catch (error) {        
+    } catch (error) {
         return [];
     }
 }
