@@ -2,6 +2,8 @@
 node_modules/
 .npm
 
+
+
 # VIM swap files
 *.swp
 
@@ -14,3 +16,6 @@ node_modules/
 
 # typescript compiled out
 dist/
+
+#nodeman debugging stores partners in scripts
+scripts/partners.json
