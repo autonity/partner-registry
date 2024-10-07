@@ -2,7 +2,7 @@
 
 To submit your own project, add a project folder to the `partners/` directory.
 
-#### In your project folder you need to add two files: `logo.png` & `info.json`.
+#### In your project folder you need to add two files: `logo.png` & `info.yaml`.
 
 ### The logo.png file must be no more then 125x125px
 
