@@ -1,0 +1,12 @@
+export const partnerFileName = "info.yaml";
+export const defaultLogoName = "logo.png";
+export const partnerDir = "../partners";
+export const partnerStorageName = "partners.json";
+export const examplePartnerName = "example";
+export const shortDescriptionLimit = 75;
+export const longDescriptionLimit = 250;
+export const nameLimit = 40;
+export const tagCharacterLimit = 20;
+export const maxNumberOfTags = 5;
+export const maxImageWidth = 125;
+export const maxImageHeight = 125;

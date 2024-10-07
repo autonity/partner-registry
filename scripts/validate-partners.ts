@@ -1,58 +1,57 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { URL } from 'url';
-import { getPartnerDirectories } from './generate-partners';
+import { getPartnerDirectories, getPartnerObject } from './generate-partners';
 import sharp from 'sharp';
-import { error } from 'console';
+import { Partner } from './interface';
+import { maxImageWidth, maxImageHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultLogoName, partnerFileName } from './constants';
 
-interface Partner {
-    name: string;
-    shortDescription: string;
-    longDescription: string;
-    tags: string[];
-    url: string;
-}
 
-export const shortDescriptionLimit = 75;
-export const longDescriptionLimit = 250;
-export const nameLimit = 40;
-export const tagCharacterLimit = 20;
-export const maxNumberOfTags = 5;
-export const maxImageWidth = 125;
-export const maxImageHeight = 125;
 
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
+//type guard
+export function isPartner(obj: any): obj is Partner {
+    return typeof obj === 'object' &&
+        typeof obj.name === 'string' &&
+        typeof obj.short_description === 'string' &&
+        typeof obj.long_description === 'string' &&
+        Array.isArray(obj.tags) && obj.tags.every((tag: string) => typeof tag === 'string') &&
+        typeof obj.url === 'string' &&
+        typeof obj.featured === 'boolean' &&
+        typeof obj.logo === 'string';
+}
+
 export async function validatePartnerInfo(partnerPath: string): Promise<string[]> {
 
-    const infoPath = path.join(partnerPath, 'info.json');
-    const logoPath = path.join(partnerPath, 'logo.png');
+    const fullPartnerPath = path.join(partnerPath, partnerFileName);
+    const fullLogoPath = path.join(partnerPath, defaultLogoName);
     let errorMessages: string[] = [];
 
-    if (!fs.existsSync(infoPath)) {
-        errorMessages.push(`info.json is missing in ${partnerPath}`);
+    if (!fs.existsSync(fullPartnerPath)) {
+        errorMessages.push(`${partnerFileName} is missing in ${partnerPath}`);
         return errorMessages;
     }
 
     try {
-        const partnerInfo: Partner = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
+        const partnerInfo = getPartnerObject(fullPartnerPath);
         requiredFields.forEach((field) => {
             if (!partnerInfo[field]) {
-                errorMessages.push(`${field} is missing in ${infoPath}`);
+                errorMessages.push(`${field} is missing in ${fullPartnerPath}`);
             }
         });
 
-        if (!fs.existsSync(logoPath)) {
+        if (!fs.existsSync(fullLogoPath)) {
             errorMessages.push(`logo.png is missing in ${partnerPath}`);
         }
 
-        errorMessages = errorMessages.concat(await checkImageDimensions(logoPath));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullLogoPath));
         // Check for character limits and valid types
         validatePartnerFields(partnerInfo, errorMessages);
 
         return errorMessages
     } catch (error) {
-        errorMessages.push(`info.json contains invalid JSON in ${partnerPath}`);
+        errorMessages.push(`${partnerFileName} contains invalid data in ${partnerPath}`);
         return errorMessages;
     }
 }
