@@ -6,14 +6,15 @@ To submit your own project, add a project folder to the `partners/` directory.
 
 ### The logo.png file must be no more then 125x125px
 
-The `info.json` file looks like this:
+The `info.yaml` file looks like this:
 
-``` typescript
-export interface Partner {
-    name: string; //40 characters max
-    shortDescription: string; // 75 character max description
-    longDescription: string; // 250 character max description
-    tags: string[]; //keywords that best describe your project, max 5 each one no more then 20 characters
-    url: string; // must be a https url
-}
+``` yaml
+name: "Test Partner" # 40 characters max
+short_description: "Test Partner" # // character max description
+long_description: "This is a test and is ignored by the uploader" # 250 character max
+tags: # max 5 tags
+  - "test" # no more then 20 characters per tag
+  - "partner"
+url: "https://www.autonity.org" # must be a valid https url
+
 ```
