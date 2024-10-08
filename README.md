@@ -15,14 +15,13 @@ Firstly you need to fork the registry [repo](https://github.com/autonity/partner
 The `info.yaml` file looks like this:
 
 ``` yaml
-name: "Test Partner" # 40 characters max
-short_description: "Test Partner" # 75 character max description
-long_description: "This is a test and is ignored by the uploader" # 250 character max
-tags: # max 5 tags
-  - "test" # no more then 20 characters per tag
+name: "Test Partner" # 20 characters max
+short_description: "Test Partner" # 60 character max description
+long_description: "This is a test and is ignored by the uploader" # 175 character max
+tags: # max 3 tags
+  - "test" # no more then 12 characters per tag
   - "partner"
 url: "https://www.autonity.org" # must be a valid https url
-
 ```
 
 
