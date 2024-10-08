@@ -1,12 +1,11 @@
+import { examplePartnerName, partnerDir, partnerFileName, partnerStorageName } from "./constants";
 import fs from "fs-extra";
 import path from "path";
 import { Partner } from "./interface";
+import { getJsonfromYaml } from "./translation-layer";
+import { isPartner } from "./validate-partners";
 
-const partnerManifest = "info.json";
-const partnerDir = "../partners";
-const logoPath = "logo.png";
-const partnerStorageName = "partners.json";
-const examplePartnerName = "example";
+
 /**
  * Reads all the directories inside the partners directory and returns their path as an array
  * @returns {string[]} Array of paths to the directories inside the partners directory
@@ -59,23 +58,13 @@ export function isValidLogoUrl(url: string): boolean {
  * @param {string} partnerPath - path to the partner directory where the logo and the json file is
  * @returns {Partner} - partner object or null if an error occurs
  */
-export function getPartnerObject(partnerPath: string): Partner | null {
+export function getPartnerObject(partnerPath: string): Partner {
     try {
-        const partnerJsonPath = path.join(partnerPath, partnerManifest);
-        const partner = fs.readJsonSync(partnerJsonPath) as Partner;
-
-        // Check if logo.png exists in the partner directory
-        const logo = path.join(partnerPath, logoPath);
-        if (fs.existsSync(logo)) {
-            partner.logo = logoPath; // we dont want to store the full path, just the name, then we can pull the logo from github
-        } else {
-            throw new Error(`No valid logo provided for ${partner.name}`);
-        }
-
+        const partner = getJsonfromYaml(partnerPath);    
         partner.featured = false;
         return partner;
-    } catch (error) {        
-        return null;
+    } catch (error) {
+        throw new Error(`Invalid partner object for ${partnerPath}`);
     }
 }
 
@@ -90,11 +79,14 @@ export function generatePartnerList(): Partner[] {
  */
 export function buildPartnersJson(partnerDirectories: string[]): Partner[] {
     try {
-        const partners = partnerDirectories
-            .map(getPartnerObject)
-            .filter((partner) => partner !== null) as Partner[];
+        const partners = partnerDirectories.map((path:string) => getPartnerObject(`${path}/${partnerFileName}`));
+        partners.forEach((partner) => {
+            if(!isPartner(partner)) {
+                throw new Error("Invalid partner object");
+            }
+        });
         return partners;
-    } catch (error) {        
+    } catch (error) {
         return [];
     }
 }
@@ -112,5 +104,6 @@ export function storePartners(partners: Partner[]): void {
         console.error("Error storing partners JSON:", error);
     }
 }
+
 
 storePartners(generatePartnerList());

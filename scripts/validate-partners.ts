@@ -1,62 +1,74 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { URL } from 'url';
-import { getPartnerDirectories } from './generate-partners';
+import { getPartnerDirectories, getPartnerObject } from './generate-partners';
 import sharp from 'sharp';
-import { error } from 'console';
-
-interface Partner {
-    name: string;
-    shortDescription: string;
-    longDescription: string;
-    tags: string[];
-    url: string;
-}
-
-export const shortDescriptionLimit = 75;
-export const longDescriptionLimit = 250;
-export const nameLimit = 40;
-export const tagCharacterLimit = 20;
-export const maxNumberOfTags = 5;
-export const maxImageWidth = 125;
-export const maxImageHeight = 125;
+import { Partner } from './interface';
+import { maxImageWidth, maxImageHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultLogoName, partnerFileName } from './constants';
 
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
+/**
+ * Type guard to check if an object conforms to the Partner interface.
+ * 
+ * @param {any} obj - The object to be checked.
+ * @returns {obj is Partner} - Returns true if the object matches the Partner interface.
+ */
+export function isPartner(obj: any): obj is Partner {
+    return typeof obj.name === 'string' &&
+        typeof obj.shortDescription === 'string' &&
+        typeof obj.longDescription === 'string' &&
+        Array.isArray(obj.tags) && obj.tags.every((tag: string) => typeof tag === 'string') &&
+        typeof obj.url === 'string' &&
+        typeof obj.featured === 'boolean';
+}
+
+/**
+ * Validates partner information found at the given path.
+ * 
+ * @param {string} partnerPath - The path to the partner directory.
+ * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages.
+ */
 export async function validatePartnerInfo(partnerPath: string): Promise<string[]> {
 
-    const infoPath = path.join(partnerPath, 'info.json');
-    const logoPath = path.join(partnerPath, 'logo.png');
+    const fullPartnerPath = path.join(partnerPath, partnerFileName);
+    const fullLogoPath = path.join(partnerPath, defaultLogoName);
     let errorMessages: string[] = [];
 
-    if (!fs.existsSync(infoPath)) {
-        errorMessages.push(`info.json is missing in ${partnerPath}`);
+    if (!fs.existsSync(fullPartnerPath)) {
+        errorMessages.push(`${partnerFileName} is missing in ${partnerPath}`);
         return errorMessages;
     }
 
     try {
-        const partnerInfo: Partner = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
+        const partnerInfo = getPartnerObject(fullPartnerPath);
         requiredFields.forEach((field) => {
             if (!partnerInfo[field]) {
-                errorMessages.push(`${field} is missing in ${infoPath}`);
+                errorMessages.push(`${field} is missing in ${fullPartnerPath}`);
             }
         });
 
-        if (!fs.existsSync(logoPath)) {
+        if (!fs.existsSync(fullLogoPath)) {
             errorMessages.push(`logo.png is missing in ${partnerPath}`);
         }
 
-        errorMessages = errorMessages.concat(await checkImageDimensions(logoPath));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullLogoPath));
         // Check for character limits and valid types
         validatePartnerFields(partnerInfo, errorMessages);
 
         return errorMessages
     } catch (error) {
-        errorMessages.push(`info.json contains invalid JSON in ${partnerPath}`);
+        errorMessages.push(`${partnerFileName} contains invalid data in ${partnerPath}`);
         return errorMessages;
     }
 }
 
+/**
+ * Checks the dimensions of the partner's logo.
+ * 
+ * @param {string} filePath - The file path to the image.
+ * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages if the image is invalid.
+ */
 async function checkImageDimensions(filePath: string): Promise<string[]> {
     const errorMessages: string[] = [];
     try {
@@ -74,6 +86,13 @@ async function checkImageDimensions(filePath: string): Promise<string[]> {
     }
 }
 
+/**
+ * Validates partner fields such as name, description, tags, and URL.
+ * 
+ * @param {Partner} partner - The partner object to be validated.
+ * @param {string[]} errorMessages - An array of error messages that will be appended to if any validations fail.
+ * @returns {void}
+ */
 export function validatePartnerFields(partner: Partner, errorMessages: string[]): void {
     if (partner.name.length > nameLimit) {
         errorMessages.push(`'name' exceeds ${nameLimit} characters`);
@@ -111,6 +130,10 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
     }
 }
 
+/**
+ * Retrieves partner directories and validates the partner info for each directory.
+ * Logs any error messages found during validation.
+ */
 getPartnerDirectories().forEach((partnerPath) => {
     validatePartnerInfo(partnerPath).then((errorMessages) => {
         if (errorMessages.length > 0) {

@@ -1,0 +1,8 @@
+{
+    "watch": [
+        "scripts",
+        "tests"
+    ],
+    "ext": ".ts",
+     "exec": "npx ts-node scripts/generate-partners.ts"
+}
