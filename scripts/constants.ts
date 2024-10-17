@@ -1,5 +1,6 @@
 export const partnerFileName = 'info.yaml'
-export const defaultLogoName = 'logo.png'
+export const defaultThumbnailName = 'thumbnail.png'
+export const defaultBannerName = 'banner.png'
 export const partnerDir = '../partners'
 export const partnerStorageName = 'partners.json'
 export const examplePartnerName = 'example'
@@ -8,5 +9,7 @@ export const longDescriptionLimit = 175
 export const nameLimit = 20
 export const tagCharacterLimit = 12
 export const maxNumberOfTags = 3
-export const maxImageWidth = 125
-export const maxImageHeight = 125
+export const maxThumbnailWidth = 125
+export const maxThumbnailHeight = 125
+export const maxBannerWidth = 533
+export const maxBannerHeight = 280

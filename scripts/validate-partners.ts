@@ -4,7 +4,7 @@ import { URL } from 'url';
 import { getPartnerDirectories, getPartnerObject } from './generate-partners';
 import sharp from 'sharp';
 import { Partner } from './interface';
-import { maxImageWidth, maxImageHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultLogoName, partnerFileName } from './constants';
+import { maxThumbnailWidth, maxThumbnailHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultThumbnailName, defaultBannerName, partnerFileName, maxBannerWidth, maxBannerHeight } from './constants';
 
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
@@ -32,7 +32,9 @@ export function isPartner(obj: any): obj is Partner {
 export async function validatePartnerInfo(partnerPath: string): Promise<string[]> {
 
     const fullPartnerPath = path.join(partnerPath, partnerFileName);
-    const fullLogoPath = path.join(partnerPath, defaultLogoName);
+    const fullThumbnailPath = path.join(partnerPath, defaultThumbnailName);
+    const fullBannerPath = path.join(partnerPath, defaultBannerName);
+
     let errorMessages: string[] = [];
 
     if (!fs.existsSync(fullPartnerPath)) {
@@ -48,11 +50,18 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
             }
         });
 
-        if (!fs.existsSync(fullLogoPath)) {
-            errorMessages.push(`logo.png is missing in ${partnerPath}`);
+        // check images
+        if (!fs.existsSync(fullThumbnailPath)) {
+            errorMessages.push(`Thumbnail image is missing`);
         }
 
-        errorMessages = errorMessages.concat(await checkImageDimensions(fullLogoPath));
+        if(!fs.existsSync(fullBannerPath)) { 
+            errorMessages.push(`Banner image is missing`)
+        }
+
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullThumbnailPath, maxThumbnailWidth, maxThumbnailHeight));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPath, maxBannerWidth, maxBannerHeight));
+
         // Check for character limits and valid types
         validatePartnerFields(partnerInfo, errorMessages);
 
@@ -69,15 +78,15 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
  * @param {string} filePath - The file path to the image.
  * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages if the image is invalid.
  */
-async function checkImageDimensions(filePath: string): Promise<string[]> {
+async function checkImageDimensions(filePath: string, maxWidth = maxThumbnailWidth, maxHeight = maxThumbnailHeight): Promise<string[]> {
     const errorMessages: string[] = [];
     try {
         const { width, height } = await sharp(filePath).metadata();
 
         if (!width || !height) {
             errorMessages.push('image metadata could not be read');
-        } else if (width > maxImageWidth || height > maxImageHeight) {
-            errorMessages.push(`image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels`);
+        } else if (width > maxWidth || height > maxHeight) {
+            errorMessages.push(`image dimensions exceed ${maxWidth}x${maxHeight} pixels`);
         }
     } catch (error) {
         errorMessages.push('Error reading image metadata');

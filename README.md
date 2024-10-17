@@ -25,7 +25,8 @@ url: "https://www.autonity.org" # must be a valid https url
 ```
 
 
-The `logo.png` must be no more than 125x125px
+The `thumbnail.png` must be no more than 125x125px
+The `banner.png` must be no more than 300x533px
 
 #### Step 4: Create a pull-request containing your updated data.
 

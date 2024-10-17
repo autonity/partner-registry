@@ -1,7 +1,7 @@
-name: "Test Partner"
-short_description: "Test Partner"
-long_description: "This is a test and is ignored by the uploader"
+name: 'Test Partner'
+short_description: 'Test Partner'
+long_description: 'This is a test and is ignored by the uploader'
 tags:
-  - "test"
-  - "partner"
-url: "https://www.autonity.org"
+    - 'test'
+    - 'partner'
+url: 'https://www.autonity.org'

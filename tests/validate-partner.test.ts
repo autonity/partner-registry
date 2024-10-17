@@ -1,7 +1,6 @@
 // __tests__/validatePartnerInfo.test.ts
-import { maxImageHeight, maxImageWidth } from '../scripts/constants';
+import { maxThumbnailHeight, maxThumbnailWidth } from '../scripts/constants';
 import { validatePartnerInfo } from '../scripts/validate-partners'; // Adjust the path as needed
-import * as path from 'path';
 import sharp from 'sharp';
 import mockFs from 'mock-fs';
 
@@ -20,10 +19,10 @@ describe('validatePartnerInfo', () => {
       - "mock"
       - "partner"
     url: "https://mockpartner.com"
-    logo: "logo.png"
     featured: false
     `,
-        'logo.png': 'fake-image-data'
+    'banner.png': 'fake-image-data',
+    'thumbnail.png': 'fake-image-data',
     }
     beforeEach(() => {
         jest.resetAllMocks();
@@ -68,9 +67,7 @@ describe('validatePartnerInfo', () => {
         
         mockFs({
             [partnerPath]: {
-                'info.yaml': "name_thing: 'yes'",
-                'logo.png': 'fake-image-data',
-                'README.md': 'Some readme content'
+                'info.yaml': {}
             }
         });
 
@@ -79,8 +76,7 @@ describe('validatePartnerInfo', () => {
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
-
-        expect(errors).toEqual( ["name is missing in /path/to/partner/info.yaml", "shortDescription is missing in /path/to/partner/info.yaml", "longDescription is missing in /path/to/partner/info.yaml", "tags is missing in /path/to/partner/info.yaml", "url is missing in /path/to/partner/info.yaml", "info.yaml contains invalid data in /path/to/partner"]);
+        expect(errors).toEqual( ["info.yaml contains invalid data in /path/to/partner"]);
     });
 
     it('should error if image dimensions are too big', async () => {        
@@ -93,7 +89,7 @@ describe('validatePartnerInfo', () => {
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
-        expect(errors).toEqual([`image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels`]);
+        expect(errors).toEqual([`image dimensions exceed ${maxThumbnailWidth}x${maxThumbnailHeight} pixels`]);
 
     });
 

@@ -2,7 +2,7 @@
 node_modules/
 .npm
 
-
+coverage/
 
 # VIM swap files
 *.swp
