@@ -41,7 +41,7 @@ export function isValidLogoUrl(url: string): boolean {
         if (!url) {
             return false;
         }
-        const validExtensions = [".png", ".jpg", ".webp", ".svg"];
+        const validExtensions = [".png"];
         const urlObj = new URL(url);
         const extension = path.extname(urlObj.pathname);
         return (

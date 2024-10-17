@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { URL } from 'url';
 import { getPartnerDirectories, getPartnerObject } from './generate-partners';
 import sharp from 'sharp';
 import { Partner } from './interface';
@@ -84,7 +83,7 @@ async function checkImageDimensions(filePath: string, maxWidth = maxThumbnailWid
         const { width, height } = await sharp(filePath).metadata();
 
         if (!width || !height) {
-            errorMessages.push('image metadata could not be read');
+            errorMessages.push(`image metadata could not be read for ${filePath}`);
         } else if (width > maxWidth || height > maxHeight) {
             errorMessages.push(`image dimensions exceed ${maxWidth}x${maxHeight} pixels`);
         }
@@ -108,11 +107,11 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
     }
 
     if (partner.shortDescription.length > shortDescriptionLimit) {
-        errorMessages.push(`'shortDescription' exceeds ${shortDescriptionLimit} characters`);
+        errorMessages.push(`'short_description' exceeds ${shortDescriptionLimit} characters`);
     }
 
     if (partner.longDescription.length > longDescriptionLimit) {
-        errorMessages.push(`'longDescription' exceeds ${longDescriptionLimit} characters`);
+        errorMessages.push(`'long_description' exceeds ${longDescriptionLimit} characters`);
     }
 
     if (!Array.isArray(partner.tags) || partner.tags.length === 0) {
@@ -129,7 +128,10 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
         }
     }
 
+    if(partner.url) {
     try {
+        console.log('partner url call', partner.url)
+        console.log(URL)
         const urlObject = new URL(partner.url);
         if (urlObject.protocol !== 'https:') {
             errorMessages.push(`'url' should be a HTTPS`);
@@ -138,18 +140,23 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
         errorMessages.push(`'url' is not a valid URL`);
     }
 }
+}
 
 /**
  * Retrieves partner directories and validates the partner info for each directory.
  * Logs any error messages found during validation.
  */
-getPartnerDirectories().forEach((partnerPath) => {
-    validatePartnerInfo(partnerPath).then((errorMessages) => {
-        if (errorMessages.length > 0) {
-            console.log(errorMessages.join(',\n').trim());
+export async function processAllPartners() {
+    const partnerDirectories = getPartnerDirectories();
+
+    for (const partnerPath of partnerDirectories) {
+        try {
+            const errorMessages = await validatePartnerInfo(partnerPath);
+            if (errorMessages.length > 0) {
+                console.log(errorMessages.join(',\n').trim());
+            }
+        } catch (error) {
+            console.log('Problem with your submission, please check it carefully and try again.');
         }
-    }).catch((error) => {
-        console.log('Problem with your submission, please check it carefully and try again.')
     }
-    );
-});
+}
