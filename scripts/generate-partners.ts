@@ -41,7 +41,7 @@ export function isValidLogoUrl(url: string): boolean {
         if (!url) {
             return false;
         }
-        const validExtensions = [".png", ".jpg", ".webp", ".svg"];
+        const validExtensions = [".png"];
         const urlObj = new URL(url);
         const extension = path.extname(urlObj.pathname);
         return (
@@ -68,11 +68,6 @@ export function getPartnerObject(partnerPath: string): Partner {
     }
 }
 
-export function generatePartnerList(): Partner[] {
-    const partnerDirectories = getPartnerDirectories();
-    return buildPartnersJson(partnerDirectories);
-}
-
 /**
  * Generates a JSON array of partner objects from the partners directory array
  * @returns {Partner[]} - array of partner objects
@@ -90,20 +85,3 @@ export function buildPartnersJson(partnerDirectories: string[]): Partner[] {
         return [];
     }
 }
-
-/**
- * Stores the partner list in a JSON file
- * @param {Partner[]} partners - array of partner objects
- * @returns {void}
- */
-export function storePartners(partners: Partner[]): void {
-    try {
-        const storagePath = path.join(__dirname, partnerStorageName);
-        fs.writeJsonSync(storagePath, partners);
-    } catch (error) {
-        console.error("Error storing partners JSON:", error);
-    }
-}
-
-
-storePartners(generatePartnerList());
