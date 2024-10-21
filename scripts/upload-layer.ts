@@ -4,6 +4,8 @@ import { buildPartnersJson, getPartnerDirectories } from './generate-partners'
 import { validatePartnerInfo } from './validate-partners'
 import path from 'path'
 import * as fs from 'fs'
+import { getJsonfromYaml } from './translation-layer'
+import { partnerFileName } from './constants'
 dotenv.config()
 
 const REGION = process.env.REGION ?? ''
@@ -59,14 +61,15 @@ const run = async () => {
         }
         const data = await s3Client.send(new PutObjectCommand(uploadParams))
         console.log(`Partners uploaded. ETag: ${data.ETag}`)
-
+        
         console.log('Proceeding with image uploads...')
         for (const partnerDir of partnerDirectories) {
+            const {name } = getJsonfromYaml(`${partnerDir}/${partnerFileName}`)
             const thumbnail = path.join(partnerDir, 'thumbnail.png')
-            const thumbnailKey = `images/${path.basename(partnerDir)}.png`
-
+            const thumbnailKey = `images/${name}/thumbnail.png`
+            
             const banner = path.join(partnerDir, 'banner.png')
-            const bannerKey = `images/${path.basename(partnerDir)}.png`
+            const bannerKey = `images/${name}/banner.png`
             
             await uploadFile(s3Client, thumbnail, thumbnailKey)
             await uploadFile(s3Client, banner, bannerKey)

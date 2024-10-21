@@ -60,8 +60,7 @@ export function isValidLogoUrl(url: string): boolean {
  */
 export function getPartnerObject(partnerPath: string): Partner {
     try {
-        const partner = getJsonfromYaml(partnerPath);    
-        partner.featured = false;
+        const partner = getJsonfromYaml(partnerPath);
         return partner;
     } catch (error) {
         throw new Error(`Invalid partner object for ${partnerPath}`);
