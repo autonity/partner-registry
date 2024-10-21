@@ -138,8 +138,6 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
 
     if(partner.url) {
     try {
-        console.log('partner url call', partner.url)
-        console.log(URL)
         const urlObject = new URL(partner.url);
         if (urlObject.protocol !== 'https:') {
             errorMessages.push(`'url' should be a HTTPS`);
