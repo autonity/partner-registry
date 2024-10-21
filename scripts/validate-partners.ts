@@ -18,8 +18,7 @@ export function isPartner(obj: any): obj is Partner {
         typeof obj.shortDescription === 'string' &&
         typeof obj.longDescription === 'string' &&
         Array.isArray(obj.tags) && obj.tags.every((tag: string) => typeof tag === 'string') &&
-        typeof obj.url === 'string' &&
-        typeof obj.featured === 'boolean';
+        typeof obj.url === 'string';
 }
 
 /**
