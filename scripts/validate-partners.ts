@@ -58,6 +58,14 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
             errorMessages.push(`Banner image is missing`)
         }
 
+        if(!fullThumbnailPath.endsWith('.png')) {
+            errorMessages.push(`Thumbnail image is not a PNG`)
+        }
+
+        if(!fullBannerPath.endsWith('.png')) {
+            errorMessages.push(`Banner image is not a PNG`)
+        }
+
         errorMessages = errorMessages.concat(await checkImageDimensions(fullThumbnailPath, maxThumbnailWidth, maxThumbnailHeight));
         errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPath, maxBannerWidth, maxBannerHeight));
 
