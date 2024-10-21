@@ -18,7 +18,6 @@ describe("Partners Module", () => {
         longDescription: "Mock long description",
         tags: ["mock", "partner"],
         url: "https://mockpartner.com",
-        featured: false
     }
     
     const validPartner = `
@@ -84,6 +83,7 @@ describe("Partners Module", () => {
     describe("getPartnerObject", () => {        
 
         it("should throw an error if partner object is invalid", () => {
+            jest.spyOn(translationLayer, 'getJsonfromYaml').mockImplementation(() => { throw new Error("Invalid JSON") });
             jest.spyOn(fs, 'readJsonSync').mockImplementation(() => { throw new Error("Invalid JSON") });
             expect(() => getPartnerObject(mockPartnerPath)).toThrow("Invalid partner object for /mock/partnerPath");            
         });
