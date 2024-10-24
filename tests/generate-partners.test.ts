@@ -18,7 +18,6 @@ describe("Partners Module", () => {
         longDescription: "Mock long description",
         tags: ["mock", "partner"],
         url: "https://mockpartner.com",
-        featured: false
     }
     
     const validPartner = `
@@ -45,7 +44,15 @@ describe("Partners Module", () => {
             const directories = getPartnerDirectories();
             expect(directories).toEqual([]);
         });
+
+        it("should return an empty array if an error occurs while reading the file", () => {
+            jest.spyOn(fs, 'existsSync').mockImplementation(() => { throw new Error("Error reading partner directories") });
+            
+            const directories = getPartnerDirectories();
+            expect(directories).toEqual([]);
+        });
     });
+    
 
     describe("isValidLogoUrl", () => {
         it("should return true for a valid HTTPS URL with a valid extension", () => {
@@ -66,11 +73,17 @@ describe("Partners Module", () => {
         it("should return false if URL is not provided", () => {
             expect(isValidLogoUrl("")).toBe(false);
         });
+
+        it("should return false if an error occurs while validating the URL", () => {
+            jest.spyOn(global, 'URL').mockImplementation(() => { throw new Error("Invalid URL") });
+            expect(isValidLogoUrl("https://example.com/logo.png")).toBe(false);
+        });
     });
 
     describe("getPartnerObject", () => {        
 
         it("should throw an error if partner object is invalid", () => {
+            jest.spyOn(translationLayer, 'getJsonfromYaml').mockImplementation(() => { throw new Error("Invalid JSON") });
             jest.spyOn(fs, 'readJsonSync').mockImplementation(() => { throw new Error("Invalid JSON") });
             expect(() => getPartnerObject(mockPartnerPath)).toThrow("Invalid partner object for /mock/partnerPath");            
         });
@@ -81,8 +94,7 @@ describe("Partners Module", () => {
             const directories = ["/mock/partner1", "/mock/partner2"];
             jest.spyOn(translationLayer, 'getJsonfromYaml').mockReturnValue(validPartnerJson);
             jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-            const partners = buildPartnersJson(directories);
-            console.log(partners);
+            const partners = buildPartnersJson(directories);            
             expect(partners.length).toEqual(2);
         });
 

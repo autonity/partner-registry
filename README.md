@@ -1,4 +1,5 @@
-[![Scheduled CDN Upload](https://github.com/autonity/partner-registry/actions/workflows/scheduled-deployment.yaml/badge.svg)](https://github.com/autonity/partner-registry/actions/workflows/scheduled-deployment.yaml)
+[![Scheduled CDN Upload](https://github.com/autonity/partner-registry/actions/workflows/scheduled-deployment.yaml/badge.svg)](https://github.com/autonity/partner-registry/actions/workflows/scheduled-deployment.yaml) [![Tests](https://github.com/autonity/partner-registry/actions/workflows/unit-tests.yaml/badge.svg?branch=develop)](https://github.com/autonity/partner-registry/actions/workflows/unit-tests.yaml)
+
 # ECOSYSTEM Partner Registry
 
 How to add your project to our [Partner-Registry](https://github.com/autonity/partner-registry) repo.
@@ -10,7 +11,9 @@ Firstly you need to fork the registry [repo](https://github.com/autonity/partner
 
 #### Step 2: In the `partners/` folder create a folder named according to your project.
 
-#### Step 3: In your project folder you need to add two files: `logo.png` & `info.yaml`.
+#### Step 3: In your project folder you need to add three files: `thumbnail.png`, `banner.png` & `info.yaml`.
+
+
 
 The `info.yaml` file looks like this:
 
@@ -18,14 +21,17 @@ The `info.yaml` file looks like this:
 name: "Test Partner" # 20 characters max
 short_description: "Test Partner" # 60 character max description
 long_description: "This is a test and is ignored by the uploader" # 175 character max
-tags: # max 3 tags
-  - "test" # no more then 12 characters per tag
-  - "partner"
+tags: # max 3 tags, the most relevant should be listed first
+  - "defi" # no more then 12 characters per tag
+  - "infra"
 url: "https://www.autonity.org" # must be a valid https url
 ```
 
 
-The `logo.png` must be no more than 125x125px
+The `thumbnail.png` must be no more than 125x125px
+The `banner.png` must be no more than 300x533px
+
+#### Tags should be added in order of relevance! The most relevant tag should be the first.
 
 #### Step 4: Create a pull-request containing your updated data.
 

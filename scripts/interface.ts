@@ -4,7 +4,6 @@ export interface Partner {
     longDescription: string;
     tags: string[];
     url: string;
-    featured: boolean;
 }
 
 export interface YamlPartner { 
@@ -28,6 +27,5 @@ export const convertYamlPartnerToPartner = (yamlPartner: YamlPartner): Partner =
         longDescription: yamlPartner.long_description,
         tags: yamlPartner.tags,
         url: yamlPartner.url,
-        featured: false
     };
 }

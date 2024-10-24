@@ -9,7 +9,7 @@
         "check-partners": "node dist/validate-partners.js",
         "failure-test": "node dist/failure-check.js",
         "upload": "node dist/upload-layer.js",
-        "test": "jest",
+        "test": "jest --silent --collectCoverage",
         "format": "prettier --write .",
         "format-check": "prettier --check .",
         "dev": "nodemon"

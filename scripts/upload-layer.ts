@@ -2,6 +2,10 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import dotenv from 'dotenv'
 import { buildPartnersJson, getPartnerDirectories } from './generate-partners'
 import { validatePartnerInfo } from './validate-partners'
+import path from 'path'
+import * as fs from 'fs'
+import { getJsonfromYaml } from './translation-layer'
+import { partnerFileName } from './constants'
 dotenv.config()
 
 const REGION = process.env.REGION ?? ''
@@ -14,6 +18,22 @@ const validationCheck = async (partnerDirectories: string[]) => {
         partnerDirectories.map(validatePartnerInfo),
     )
     return results
+}
+
+const uploadFile = async (s3Client: S3Client, filePath: string, key: string) => {
+    try {
+        const fileStream = fs.createReadStream(filePath)
+        const uploadParams = {
+            Bucket: BUCKET_NAME,
+            Key: key,
+            Body: fileStream,
+            ContentType: 'image/png'
+        }
+        const data = await s3Client.send(new PutObjectCommand(uploadParams))
+        console.log(`File uploaded successfully. ETag: ${data.ETag}`)
+    } catch (err) {
+        process.stderr.write(`Error uploading file: ${err}\n`)
+    }
 }
 
 const run = async () => {
@@ -41,6 +61,19 @@ const run = async () => {
         }
         const data = await s3Client.send(new PutObjectCommand(uploadParams))
         console.log(`Partners uploaded. ETag: ${data.ETag}`)
+        
+        console.log('Proceeding with image uploads...')
+        for (const partnerDir of partnerDirectories) {
+            const {name } = getJsonfromYaml(`${partnerDir}/${partnerFileName}`)
+            const thumbnail = path.join(partnerDir, 'thumbnail.png')
+            const thumbnailKey = `images/${name}/thumbnail.png`
+            
+            const banner = path.join(partnerDir, 'banner.png')
+            const bannerKey = `images/${name}/banner.png`
+            
+            await uploadFile(s3Client, thumbnail, thumbnailKey)
+            await uploadFile(s3Client, banner, bannerKey)
+        }
     } catch (err) {
         process.stderr.write(`Error uploading object: ${err}\n`)
         process.exit(1)

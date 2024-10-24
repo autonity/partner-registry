@@ -41,7 +41,7 @@ export function isValidLogoUrl(url: string): boolean {
         if (!url) {
             return false;
         }
-        const validExtensions = [".png", ".jpg", ".webp", ".svg"];
+        const validExtensions = [".png"];
         const urlObj = new URL(url);
         const extension = path.extname(urlObj.pathname);
         return (
@@ -60,17 +60,11 @@ export function isValidLogoUrl(url: string): boolean {
  */
 export function getPartnerObject(partnerPath: string): Partner {
     try {
-        const partner = getJsonfromYaml(partnerPath);    
-        partner.featured = false;
+        const partner = getJsonfromYaml(partnerPath);
         return partner;
     } catch (error) {
         throw new Error(`Invalid partner object for ${partnerPath}`);
     }
-}
-
-export function generatePartnerList(): Partner[] {
-    const partnerDirectories = getPartnerDirectories();
-    return buildPartnersJson(partnerDirectories);
 }
 
 /**
@@ -90,20 +84,3 @@ export function buildPartnersJson(partnerDirectories: string[]): Partner[] {
         return [];
     }
 }
-
-/**
- * Stores the partner list in a JSON file
- * @param {Partner[]} partners - array of partner objects
- * @returns {void}
- */
-export function storePartners(partners: Partner[]): void {
-    try {
-        const storagePath = path.join(__dirname, partnerStorageName);
-        fs.writeJsonSync(storagePath, partners);
-    } catch (error) {
-        console.error("Error storing partners JSON:", error);
-    }
-}
-
-
-storePartners(generatePartnerList());

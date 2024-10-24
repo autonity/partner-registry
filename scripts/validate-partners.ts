@@ -1,10 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { URL } from 'url';
 import { getPartnerDirectories, getPartnerObject } from './generate-partners';
 import sharp from 'sharp';
 import { Partner } from './interface';
-import { maxImageWidth, maxImageHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultLogoName, partnerFileName } from './constants';
+import { maxThumbnailWidth, maxThumbnailHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultThumbnailName, defaultBannerName, partnerFileName, maxBannerWidth, maxBannerHeight } from './constants';
 
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
@@ -19,8 +18,7 @@ export function isPartner(obj: any): obj is Partner {
         typeof obj.shortDescription === 'string' &&
         typeof obj.longDescription === 'string' &&
         Array.isArray(obj.tags) && obj.tags.every((tag: string) => typeof tag === 'string') &&
-        typeof obj.url === 'string' &&
-        typeof obj.featured === 'boolean';
+        typeof obj.url === 'string';
 }
 
 /**
@@ -32,7 +30,9 @@ export function isPartner(obj: any): obj is Partner {
 export async function validatePartnerInfo(partnerPath: string): Promise<string[]> {
 
     const fullPartnerPath = path.join(partnerPath, partnerFileName);
-    const fullLogoPath = path.join(partnerPath, defaultLogoName);
+    const fullThumbnailPath = path.join(partnerPath, defaultThumbnailName);
+    const fullBannerPath = path.join(partnerPath, defaultBannerName);
+
     let errorMessages: string[] = [];
 
     if (!fs.existsSync(fullPartnerPath)) {
@@ -48,11 +48,26 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
             }
         });
 
-        if (!fs.existsSync(fullLogoPath)) {
-            errorMessages.push(`logo.png is missing in ${partnerPath}`);
+        // check images
+        if (!fs.existsSync(fullThumbnailPath)) {
+            errorMessages.push(`Thumbnail image is missing`);
         }
 
-        errorMessages = errorMessages.concat(await checkImageDimensions(fullLogoPath));
+        if(!fs.existsSync(fullBannerPath)) { 
+            errorMessages.push(`Banner image is missing`)
+        }
+
+        if(!fullThumbnailPath.endsWith('.png')) {
+            errorMessages.push(`Thumbnail image is not a PNG`)
+        }
+
+        if(!fullBannerPath.endsWith('.png')) {
+            errorMessages.push(`Banner image is not a PNG`)
+        }
+
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullThumbnailPath, maxThumbnailWidth, maxThumbnailHeight));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPath, maxBannerWidth, maxBannerHeight));
+
         // Check for character limits and valid types
         validatePartnerFields(partnerInfo, errorMessages);
 
@@ -69,15 +84,15 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
  * @param {string} filePath - The file path to the image.
  * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages if the image is invalid.
  */
-async function checkImageDimensions(filePath: string): Promise<string[]> {
+async function checkImageDimensions(filePath: string, maxWidth = maxThumbnailWidth, maxHeight = maxThumbnailHeight): Promise<string[]> {
     const errorMessages: string[] = [];
     try {
         const { width, height } = await sharp(filePath).metadata();
 
         if (!width || !height) {
-            errorMessages.push('image metadata could not be read');
-        } else if (width > maxImageWidth || height > maxImageHeight) {
-            errorMessages.push(`image dimensions exceed ${maxImageWidth}x${maxImageHeight} pixels`);
+            errorMessages.push(`image metadata could not be read for ${filePath}`);
+        } else if (width > maxWidth || height > maxHeight) {
+            errorMessages.push(`image dimensions exceed ${maxWidth}x${maxHeight} pixels`);
         }
     } catch (error) {
         errorMessages.push('Error reading image metadata');
@@ -99,11 +114,11 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
     }
 
     if (partner.shortDescription.length > shortDescriptionLimit) {
-        errorMessages.push(`'shortDescription' exceeds ${shortDescriptionLimit} characters`);
+        errorMessages.push(`'short_description' exceeds ${shortDescriptionLimit} characters`);
     }
 
     if (partner.longDescription.length > longDescriptionLimit) {
-        errorMessages.push(`'longDescription' exceeds ${longDescriptionLimit} characters`);
+        errorMessages.push(`'long_description' exceeds ${longDescriptionLimit} characters`);
     }
 
     if (!Array.isArray(partner.tags) || partner.tags.length === 0) {
@@ -120,6 +135,7 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
         }
     }
 
+    if(partner.url) {
     try {
         const urlObject = new URL(partner.url);
         if (urlObject.protocol !== 'https:') {
@@ -129,18 +145,23 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
         errorMessages.push(`'url' is not a valid URL`);
     }
 }
+}
 
 /**
  * Retrieves partner directories and validates the partner info for each directory.
  * Logs any error messages found during validation.
  */
-getPartnerDirectories().forEach((partnerPath) => {
-    validatePartnerInfo(partnerPath).then((errorMessages) => {
-        if (errorMessages.length > 0) {
-            console.log(errorMessages.join(',\n').trim());
+export async function processAllPartners() {
+    const partnerDirectories = getPartnerDirectories();
+
+    for (const partnerPath of partnerDirectories) {
+        try {
+            const errorMessages = await validatePartnerInfo(partnerPath);
+            if (errorMessages.length > 0) {
+                console.log(errorMessages.join(',\n').trim());
+            }
+        } catch (error) {
+            console.log('Problem with your submission, please check it carefully and try again.');
         }
-    }).catch((error) => {
-        console.log('Problem with your submission, please check it carefully and try again.')
     }
-    );
-});
+}
