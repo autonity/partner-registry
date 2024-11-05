@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import dotenv from 'dotenv'
 import { buildPartnersJson, getPartnerDirectories } from './generate-partners'
 import { validatePartnerInfo } from './validate-partners'
@@ -18,6 +18,33 @@ const validationCheck = async (partnerDirectories: string[]) => {
         partnerDirectories.map(validatePartnerInfo),
     )
     return results
+}
+
+const cleanupUnusedImages = async (s3Client: S3Client, currentPartnerNames: Set<string>) => {
+    try {
+        const listParams = {
+            Bucket: BUCKET_NAME,
+            Prefix: 'images/'
+        }
+        
+        const listedObjects = await s3Client.send(new ListObjectsV2Command(listParams))
+        
+        if (!listedObjects.Contents) return
+
+        for (const item of listedObjects.Contents) {
+            const key = item.Key ?? ''
+            const match = key.match(/^images\/([^/]+)\/.*$/)
+            if (match) {
+                const partnerName = match[1]
+                if (!currentPartnerNames.has(partnerName)) {
+                    console.log(`Deleting unused image: ${key}`)
+                    await s3Client.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key }))
+                }
+            }
+        }
+    } catch (err) {
+        process.stderr.write(`Error cleaning up images: ${err}\n`)
+    }
 }
 
 const uploadFile = async (s3Client: S3Client, filePath: string, key: string) => {
@@ -53,6 +80,8 @@ const run = async () => {
         await validationCheck(partnerDirectories)
         console.log('Proceeding with upload...')
         const partners = buildPartnersJson(partnerDirectories)
+        const currentPartnerNames = new Set(partners.map(partner => partner.name))
+        
         const uploadParams = {
             Bucket: BUCKET_NAME,
             Key: OBJECT_KEY,
@@ -74,6 +103,9 @@ const run = async () => {
             await uploadFile(s3Client, thumbnail, thumbnailKey)
             await uploadFile(s3Client, banner, bannerKey)
         }
+
+        console.log('Cleaning up unused images...')
+        await cleanupUnusedImages(s3Client, currentPartnerNames)
     } catch (err) {
         process.stderr.write(`Error uploading object: ${err}\n`)
         process.exit(1)
