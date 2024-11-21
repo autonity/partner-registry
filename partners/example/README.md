@@ -27,7 +27,7 @@ url: 'https://www.autonity.org' # must be a valid https url
 **Notes**
 
 -   The `thumbnail.png` must be no more than 125x125px.
--   The `banner.png` must be no more than 533x300px.
+-   The `banner.png` must be no more than 288x105px.
 -   Tags should be added in order of relevance! The most relevant tag should be the first.
 
 #### Step 4: Create a pull-request containing your updated data.
