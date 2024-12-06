@@ -26,8 +26,8 @@ tags: # max 3 tags, the most relevant should be listed first
 url: 'https://www.autonity.org' # must be a valid https url
 ```
 
-The `thumbnail.png` must be no more than 125x125px
-The `banner.png` must be no more than 288x105px
+The `thumbnail.png` must be no more than 196x160px
+The `banner.png` must be no more than 274x105px
 
 #### Tags should be added in order of relevance! The most relevant tag should be the first.
 

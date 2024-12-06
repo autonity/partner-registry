@@ -240,7 +240,7 @@ describe('validatePartnerInfo', () => {
         });
 
         mockedSharp.mockReturnValue({
-            metadata: jest.fn().mockResolvedValue({ width: 280, height: 105 }),
+            metadata: jest.fn().mockResolvedValue({ width: 274, height: 105 }),
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
