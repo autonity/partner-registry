@@ -1,10 +1,10 @@
 // __tests__/validatePartnerInfo.test.ts
-import { longDescriptionLimit, maxNumberOfTags, maxThumbnailHeight, maxThumbnailWidth, nameLimit, shortDescriptionLimit, tagCharacterLimit } from '../scripts/constants';
-import { validatePartnerInfo } from '../scripts/validate-partners'; // Adjust the path as needed
-import sharp from 'sharp';
-import mockFs from 'mock-fs';
-import fs from "fs-extra";
+import { longDescriptionLimit, maxBannerHeight, maxBannerWidth, maxNumberOfTags, maxThumbnailHeight, maxThumbnailWidth, nameLimit, shortDescriptionLimit, tagCharacterLimit } from '../scripts/constants';
 
+import fs from "fs-extra";
+import mockFs from 'mock-fs';
+import sharp from 'sharp';
+import { validatePartnerInfo } from '../scripts/validate-partners'; // Adjust the path as needed
 
 jest.mock('sharp');
 jest.mock("fs-extra");
@@ -176,13 +176,13 @@ describe('validatePartnerInfo', () => {
         expect(errors).toEqual(["info.yaml is missing in /path/to/partner"]);
     });
 
-    it('should return no errors for valid partner info', async () => {        
+    it('should return no errors for valid partner info', async () => {
         mockFs({
             [partnerPath]: mockResults
         });
 
         mockedSharp.mockReturnValue({
-            metadata: jest.fn().mockResolvedValue({ width: 125, height: 125 }),
+            metadata: jest.fn().mockResolvedValue({ width: 100, height: 100 }),
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
@@ -190,7 +190,7 @@ describe('validatePartnerInfo', () => {
         expect(errors).toHaveLength(0);
     });
 
-    it('shoudl return an error if tag char limit is reached', async () => {
+    it('should return an error if tag char limit is reached', async () => {
         const badTags =  {
             'info.yaml': `
             name: "Mock Partner"
@@ -211,7 +211,7 @@ describe('validatePartnerInfo', () => {
         });
 
         mockedSharp.mockReturnValue({
-            metadata: jest.fn().mockResolvedValue({ width: 125, height: 125 }),
+            metadata: jest.fn().mockResolvedValue({ width: 100, height: 100 }),
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
@@ -234,17 +234,18 @@ describe('validatePartnerInfo', () => {
         expect(errors).toEqual( ["info.yaml contains invalid data in /path/to/partner"]);
     });
 
-    it('should error if image dimensions are too big', async () => {        
+    it('should error if image (banner) dimensions are too big', async () => {
         mockFs({
             [partnerPath]: mockResults
         });
 
         mockedSharp.mockReturnValue({
-            metadata: jest.fn().mockResolvedValue({ width: 126, height: 126 }),
+            metadata: jest.fn().mockResolvedValue({ width: 274, height: 105 }),
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
-        expect(errors).toEqual([`image dimensions exceed ${maxThumbnailWidth}x${maxThumbnailHeight} pixels`]);
+        const expectedErrors = [`image dimensions exceed ${maxThumbnailWidth}x${maxThumbnailHeight} pixels`]
+        expect(errors).toEqual(expectedErrors);
 
     });
 
@@ -365,7 +366,7 @@ describe('validatePartnerInfo', () => {
         const errors = await validatePartnerInfo(partnerPath);
         expect(errors).toEqual([`'tags' should not contain more than ${maxNumberOfTags} tags`]);
     });
-    
+
     it('should log if provided url is not https', async () => {
         const mockResults =  {
         'info.yaml': `
