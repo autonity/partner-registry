@@ -26,8 +26,8 @@ tags: # max 3 tags, the most relevant should be listed first
 url: 'https://www.autonity.org' # must be a valid https url
 ```
 
-The `thumbnail.png` must be no more than 196x160px
-The `banner.png` must be no more than 274x105px
+The `thumbnail.png` must be no more than 196x160px. This is used when viewing your project in the grid list.
+The `banner.png` must be no more than 274x105px. This is used when your product is featured and is in the carousel list.
 
 #### Tags should be added in order of relevance! The most relevant tag should be the first.
 
