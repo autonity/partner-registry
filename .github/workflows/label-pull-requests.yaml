@@ -3,7 +3,7 @@ name: Validate Partner Registry
 on:
   pull_request:
     branches:
-      - master
+      - main
       - develop
 
 jobs:
