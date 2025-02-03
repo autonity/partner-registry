@@ -47,13 +47,6 @@ jobs:
             ```
             Please correct the issues and resubmit.
 
-      - name: Add label if valid
-        if: ${{ success() && contains(github.event.pull_request.title, 'Add ') && contains(github.event.pull_request.title, 'to Partner Registry') }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: "new-partner"
-
       - uses: mshick/add-pr-comment@v2
         with:
           message: |
