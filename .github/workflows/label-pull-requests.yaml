@@ -1,58 +1,38 @@
 name: Validate Partner Registry
 
 on:
-  pull_request:
-    branches:
-      - master
-      - develop
+    pull_request:
+        branches:
+            - main
+    push:
+        branches:
+            - 'main'
 
 jobs:
-  validate:    
-    runs-on: ubuntu-latest
+    validate:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+              with:
+                  node-version: '18'
 
-      - name: Install dependencies
-        run: npm install
+            - name: Install dependencies
+              run: npm install
 
-      - name: Compile TypeScript
-        run: npm run build
+            - name: Compile TypeScript
+              run: npm run build
 
-      - name: Check partners are valid
-        id: check-partners
-        run: |
-          {
-            echo 'VALIDATION_RESULTS<<EOF'
-            npm run check-partners --silent
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-          npm run failure-test
-
-      - uses: mshick/add-pr-comment@v2
-        if: failure()
-        with:
-          message: |
-            ❌ Partner submission failed. Here are the reasons why:
-            ```
-            ${{ steps.check-partners.outputs.VALIDATION_RESULTS }}
-            ```
-            Please correct the issues and resubmit.
-
-      - name: Add label if valid
-        if: ${{ success() && contains(github.event.pull_request.title, 'Add ') && contains(github.event.pull_request.title, 'to Partner Registry') }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: "new-partner"
-
-      - uses: mshick/add-pr-comment@v2
-        with:
-          message: |
-            🚀 Your PR passed validity checks and is awaiting approval.
+            - name: Check partners are valid
+              id: check-partners
+              run: |
+                  {
+                    echo 'VALIDATION_RESULTS<<EOF'
+                    npm run check-partners --silent
+                    echo EOF
+                  } >> "$GITHUB_OUTPUT"
+                  npm run failure-test
