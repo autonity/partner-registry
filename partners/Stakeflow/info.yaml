@@ -1,0 +1,8 @@
+name: 'Stakeflow'
+short_description: 'Secure and reliable staking services provider since 2018.'
+long_description: 'Reliable and secure non-custodial validator since 2018. We provide public goods for delegators and supported chains, including block explorer, RPC/API nodes and IBC relayers.'
+tags:
+    - 'validator'
+    - 'explorer'
+    - 'staking'
+url: 'https://validator.stakeflow.io/'
