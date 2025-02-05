@@ -1,0 +1,8 @@
+name: 'SubQuery Indexer'
+short_description: 'Fast, reliable, decentralised, and customised APIs for web3 projects.'
+long_description: 'SubQuery APIs make your dApp lighting quick. By providing a indexed data layer, your dApps get richer data faster to allow you to build intuitive and immersive experiences for your users.'
+tags:
+    - 'infrastructure'
+    - 'indexer'
+    - 'data'
+url: 'https://subquery.network/indexer'
