@@ -1,9 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { defaultBannerName, defaultThumbnailName, longDescriptionLimit, maxBannerHeight, maxBannerWidth, maxNumberOfTags, maxThumbnailHeight, maxThumbnailWidth, nameLimit, partnerFileName, shortDescriptionLimit, tagCharacterLimit } from './constants';
 import { getPartnerDirectories, getPartnerObject } from './generate-partners';
-import sharp from 'sharp';
+
 import { Partner } from './interface';
-import { maxThumbnailWidth, maxThumbnailHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultThumbnailName, defaultBannerName, partnerFileName, maxBannerWidth, maxBannerHeight } from './constants';
+import sharp from 'sharp';
 
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
@@ -53,15 +55,15 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
             errorMessages.push(`Thumbnail image is missing`);
         }
 
-        if(!fs.existsSync(fullBannerPath)) { 
+        if (!fs.existsSync(fullBannerPath)) {
             errorMessages.push(`Banner image is missing`)
         }
 
-        if(!fullThumbnailPath.endsWith('.png')) {
+        if (!fullThumbnailPath.endsWith('.png')) {
             errorMessages.push(`Thumbnail image is not a PNG`)
         }
 
-        if(!fullBannerPath.endsWith('.png')) {
+        if (!fullBannerPath.endsWith('.png')) {
             errorMessages.push(`Banner image is not a PNG`)
         }
 
@@ -135,16 +137,16 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
         }
     }
 
-    if(partner.url) {
-    try {
-        const urlObject = new URL(partner.url);
-        if (urlObject.protocol !== 'https:') {
-            errorMessages.push(`'url' should be a HTTPS`);
+    if (partner.url) {
+        try {
+            const urlObject = new URL(partner.url);
+            if (urlObject.protocol !== 'https:') {
+                errorMessages.push(`'url' should be a HTTPS`);
+            }
+        } catch (error) {
+            errorMessages.push(`'url' is not a valid URL`);
         }
-    } catch (error) {
-        errorMessages.push(`'url' is not a valid URL`);
     }
-}
 }
 
 /**
