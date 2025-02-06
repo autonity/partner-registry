@@ -167,3 +167,7 @@ export async function processAllPartners() {
         }
     }
 }
+
+if (require.main === module) {
+    processAllPartners();
+}
