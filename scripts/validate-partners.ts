@@ -1,9 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { defaultBannerName, defaultThumbnailName, longDescriptionLimit, maxBannerHeight, maxBannerWidth, maxNumberOfTags, maxThumbnailHeight, maxThumbnailWidth, nameLimit, partnerFileName, shortDescriptionLimit, tagCharacterLimit } from './constants';
 import { getPartnerDirectories, getPartnerObject } from './generate-partners';
-import sharp from 'sharp';
+
 import { Partner } from './interface';
-import { maxThumbnailWidth, maxThumbnailHeight, nameLimit, shortDescriptionLimit, longDescriptionLimit, maxNumberOfTags, tagCharacterLimit, defaultThumbnailName, defaultBannerName, partnerFileName, maxBannerWidth, maxBannerHeight } from './constants';
+import sharp from 'sharp';
 
 const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDescription', 'tags', 'url'];
 
@@ -53,15 +55,15 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
             errorMessages.push(`Thumbnail image is missing`);
         }
 
-        if(!fs.existsSync(fullBannerPath)) { 
+        if (!fs.existsSync(fullBannerPath)) {
             errorMessages.push(`Banner image is missing`)
         }
 
-        if(!fullThumbnailPath.endsWith('.png')) {
+        if (!fullThumbnailPath.endsWith('.png')) {
             errorMessages.push(`Thumbnail image is not a PNG`)
         }
 
-        if(!fullBannerPath.endsWith('.png')) {
+        if (!fullBannerPath.endsWith('.png')) {
             errorMessages.push(`Banner image is not a PNG`)
         }
 
@@ -135,17 +137,18 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
         }
     }
 
-    if(partner.url) {
-    try {
-        const urlObject = new URL(partner.url);
-        if (urlObject.protocol !== 'https:') {
-            errorMessages.push(`'url' should be a HTTPS`);
+    if (partner.url) {
+        try {
+            const urlObject = new URL(partner.url);
+            if (urlObject.protocol !== 'https:') {
+                errorMessages.push(`'url' should be a HTTPS`);
+            }
+        } catch (error) {
+            errorMessages.push(`'url' is not a valid URL`);
         }
-    } catch (error) {
-        errorMessages.push(`'url' is not a valid URL`);
     }
 }
-}
+
 
 /**
  * Retrieves partner directories and validates the partner info for each directory.
@@ -153,15 +156,30 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
  */
 export async function processAllPartners() {
     const partnerDirectories = getPartnerDirectories();
+    let allErrors: string[] = [];
 
     for (const partnerPath of partnerDirectories) {
         try {
             const errorMessages = await validatePartnerInfo(partnerPath);
             if (errorMessages.length > 0) {
-                console.log(errorMessages.join(',\n').trim());
+                // Log the errors right away so they appear in GH Actions logs
+                console.error(`Errors in ${partnerPath}:\n` + errorMessages.join('\n'));
+                // Collect them in allErrors
+                allErrors.push(...errorMessages);
             }
         } catch (error) {
-            console.log('Problem with your submission, please check it carefully and try again.');
+            console.error('Problem with your submission, please check it carefully and try again.');
+            // Collect that error, too
+            allErrors.push(`${partnerPath}: ${error}`);
         }
     }
+
+    // If we found any errors, exit with status code 1
+    if (allErrors.length > 0) {
+        process.exit(1);
+    }
+}
+
+if (require.main === module) {
+    processAllPartners();
 }

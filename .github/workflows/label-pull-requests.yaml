@@ -7,6 +7,7 @@ on:
     push:
         branches:
             - 'main'
+            - 'add-gha-logging'
 
 jobs:
     validate:
@@ -30,9 +31,10 @@ jobs:
             - name: Check partners are valid
               id: check-partners
               run: |
-                  {
-                    echo 'VALIDATION_RESULTS<<EOF'
-                    npm run check-partners --silent
-                    echo EOF
-                  } >> "$GITHUB_OUTPUT"
-                  npm run failure-test
+
+                  set -o pipefail
+                  npm run check-partners 2>&1 | tee check-partners-output.txt
+
+                  echo "VALIDATION_RESULTS<<EOF" >> "$GITHUB_OUTPUT"
+                  cat check-partners-output.txt >> "$GITHUB_OUTPUT"
+                  echo "EOF" >> "$GITHUB_OUTPUT"
