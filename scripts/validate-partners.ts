@@ -149,22 +149,34 @@ export function validatePartnerFields(partner: Partner, errorMessages: string[])
     }
 }
 
+
 /**
  * Retrieves partner directories and validates the partner info for each directory.
  * Logs any error messages found during validation.
  */
 export async function processAllPartners() {
     const partnerDirectories = getPartnerDirectories();
+    let allErrors: string[] = [];
 
     for (const partnerPath of partnerDirectories) {
         try {
             const errorMessages = await validatePartnerInfo(partnerPath);
             if (errorMessages.length > 0) {
-                console.log(errorMessages.join(',\n').trim());
+                // Log the errors right away so they appear in GH Actions logs
+                console.error(`Errors in ${partnerPath}:\n` + errorMessages.join('\n'));
+                // Collect them in allErrors
+                allErrors.push(...errorMessages);
             }
         } catch (error) {
-            console.log('Problem with your submission, please check it carefully and try again.');
+            console.error('Problem with your submission, please check it carefully and try again.');
+            // Collect that error, too
+            allErrors.push(`${partnerPath}: ${error}`);
         }
+    }
+
+    // If we found any errors, exit with status code 1
+    if (allErrors.length > 0) {
+        process.exit(1);
     }
 }
 
