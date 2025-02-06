@@ -31,10 +31,10 @@ jobs:
             - name: Check partners are valid
               id: check-partners
               run: |
-                  # Capture logs via tee so they are in GH Actions logs
+
+                  set -o pipefail
                   npm run check-partners 2>&1 | tee check-partners-output.txt
 
-                  # Now set that as an output so a later step can parse or use it
                   echo "VALIDATION_RESULTS<<EOF" >> "$GITHUB_OUTPUT"
                   cat check-partners-output.txt >> "$GITHUB_OUTPUT"
                   echo "EOF" >> "$GITHUB_OUTPUT"
