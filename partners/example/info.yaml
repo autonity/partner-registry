@@ -1,4 +1,4 @@
-name: 'Test Partner This is a partner that should fail for testing reasons'
+name: 'Test Partner'
 short_description: 'Test Partner'
 long_description: 'This is a test and is ignored by the uploader'
 tags:
