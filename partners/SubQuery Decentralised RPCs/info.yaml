@@ -1,0 +1,7 @@
+name: 'SubQuery RPCs'
+short_description: 'Decentralised & Public RPC Endpoints'
+long_description: 'Powered by the SubQuery Data Node, a faster and more scalable RPC service that will enable the next generation of dApps.'
+tags:
+    - 'infra'
+    - 'rpc'
+url: 'https://subquery.network/rpc'
