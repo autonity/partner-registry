@@ -1,0 +1,7 @@
+name: 'VIA Labs'
+short_description: 'Cross-chain interoperability protocol'
+long_description: 'VIA Labs equips developers with tools to scale across multiple blockchain networks, enabling seamless and efficient omnichain interoperability.'
+tags: 
+    - 'Infra'
+    - 'Bridge'
+url: 'https://www.vialabs.io/'
