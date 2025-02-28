@@ -26,10 +26,15 @@ tags: # max 3 tags, the most relevant should be listed first
 url: 'https://www.autonity.org' # must be a valid https url
 ```
 
-The `thumbnail.png` must be no more than 196x160px. This is used when viewing your project in the grid list.
-The `banner.png` must be no more than 274x105px. This is used when your product is featured and is in the carousel list.
+#### Images:
 
-#### Tags should be added in order of relevance! The most relevant tag should be the first.
+The `thumbnail_light.png` must be no more than 196x160px. This is used when viewing your project in the grid list.
+
+The `thumbnail_dark.png` must be no more than 196x160px. This is used when viewing your project in the grid list.
+
+The `banner_light.png` must be no more than 274x105px. This is used when your product is featured and is in the carousel list.
+
+The `banner_dark.png` must be no more than 274x105px. This is used when your product is featured and is in the carousel list.
 
 #### Step 4: Create a pull-request containing your updated data.
 
@@ -40,14 +45,4 @@ The `banner.png` must be no more than 274x105px. This is used when your product 
 -   **Title Format**: `Add <Project Name> to Partner Registry`
 -   **Example**: `Add MyProject to Partner Registry`
 
-If you are successfull, your PR will have a `new-partner` label applied to it:
-
-![Success Bot Label](resources/tutorial/success-label.png)
-
-And a success comment
-
-![Success Bot Comment](resources/tutorial/success-bot-comment.png)
-
-If your PR failed validity checks, a bot will comment on the reasons why
-
-![Failure bot comment](resources/tutorial/failure-bot-comment.png)
+If your PR fails validation checks, please check the github action, it will have the reason why
