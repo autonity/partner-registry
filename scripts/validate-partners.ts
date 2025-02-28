@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { defaultBannerName, defaultThumbnailName, longDescriptionLimit, maxBannerHeight, maxBannerWidth, maxNumberOfTags, maxThumbnailHeight, maxThumbnailWidth, nameLimit, partnerFileName, shortDescriptionLimit, tagCharacterLimit } from './constants';
+import { defaultBannerNameDark, defaultBannerNameLight, defaultThumbnailNameDark, defaultThumbnailNameLight, longDescriptionLimit, maxBannerHeight, maxBannerWidth, maxNumberOfTags, maxThumbnailHeight, maxThumbnailWidth, nameLimit, partnerFileName, shortDescriptionLimit, tagCharacterLimit } from './constants';
 import { getPartnerDirectories, getPartnerObject } from './generate-partners';
 
 import { Partner } from './interface';
@@ -11,7 +11,7 @@ const requiredFields: (keyof Partner)[] = ['name', 'shortDescription', 'longDesc
 
 /**
  * Type guard to check if an object conforms to the Partner interface.
- * 
+ *
  * @param {any} obj - The object to be checked.
  * @returns {obj is Partner} - Returns true if the object matches the Partner interface.
  */
@@ -32,11 +32,12 @@ export function isPartner(obj: any): obj is Partner {
 export async function validatePartnerInfo(partnerPath: string): Promise<string[]> {
 
     const fullPartnerPath = path.join(partnerPath, partnerFileName);
-    const fullThumbnailPath = path.join(partnerPath, defaultThumbnailName);
-    const fullBannerPath = path.join(partnerPath, defaultBannerName);
+    const fullThumbnailPathLight = path.join(partnerPath, defaultThumbnailNameLight);
+    const fullBannerPathLight = path.join(partnerPath, defaultBannerNameLight);
+    const fullThumbnailPathDark = path.join(partnerPath, defaultThumbnailNameDark);
+    const fullBannerPathDark = path.join(partnerPath, defaultBannerNameDark);
 
     let errorMessages: string[] = [];
-
     if (!fs.existsSync(fullPartnerPath)) {
         errorMessages.push(`${partnerFileName} is missing in ${partnerPath}`);
         return errorMessages;
@@ -51,24 +52,42 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
         });
 
         // check images
-        if (!fs.existsSync(fullThumbnailPath)) {
-            errorMessages.push(`Thumbnail image is missing`);
+        if (!fs.existsSync(fullThumbnailPathLight)) {
+            errorMessages.push(`Light thumbnail image is missing`);
         }
 
-        if (!fs.existsSync(fullBannerPath)) {
-            errorMessages.push(`Banner image is missing`)
+        if (!fs.existsSync(fullThumbnailPathDark)) {
+            errorMessages.push(`Dark thumbnail image is missing`);
         }
 
-        if (!fullThumbnailPath.endsWith('.png')) {
-            errorMessages.push(`Thumbnail image is not a PNG`)
+        if (!fs.existsSync(fullBannerPathLight)) {
+            errorMessages.push(`Light banner image is missing`)
         }
 
-        if (!fullBannerPath.endsWith('.png')) {
-            errorMessages.push(`Banner image is not a PNG`)
+        if (!fs.existsSync(fullBannerPathDark)) {
+            errorMessages.push(`Dark banner image is missing`)
         }
 
-        errorMessages = errorMessages.concat(await checkImageDimensions(fullThumbnailPath, maxThumbnailWidth, maxThumbnailHeight));
-        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPath, maxBannerWidth, maxBannerHeight));
+        if (!fullThumbnailPathLight.endsWith('.png')) {
+            errorMessages.push(`Light Thumbnail image is not a PNG`)
+        }
+
+        if (!fullThumbnailPathDark.endsWith('.png')) {
+            errorMessages.push(`Dark Thumbnail image is not a PNG`)
+        }
+
+        if (!fullBannerPathLight.endsWith('.png')) {
+            errorMessages.push(`Light Banner image is not a PNG`)
+        }
+
+        if (!fullBannerPathDark.endsWith('.png')) {
+            errorMessages.push(`Dark Banner image is not a PNG`)
+        }
+
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullThumbnailPathLight, maxThumbnailWidth, maxThumbnailHeight));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPathLight, maxBannerWidth, maxBannerHeight));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullThumbnailPathDark, maxThumbnailWidth, maxThumbnailHeight));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPathDark, maxBannerWidth, maxBannerHeight));
 
         // Check for character limits and valid types
         validatePartnerFields(partnerInfo, errorMessages);

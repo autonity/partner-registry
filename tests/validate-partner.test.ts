@@ -1,18 +1,19 @@
-// __tests__/validatePartnerInfo.test.ts
-import { longDescriptionLimit, maxBannerHeight, maxBannerWidth, maxNumberOfTags, maxThumbnailHeight, maxThumbnailWidth, nameLimit, shortDescriptionLimit, tagCharacterLimit } from '../scripts/constants';
+import { defaultBannerNameDark, defaultBannerNameLight, defaultThumbnailNameDark, defaultThumbnailNameLight, longDescriptionLimit, maxBannerHeight, maxBannerWidth, maxNumberOfTags, maxThumbnailHeight, maxThumbnailWidth, nameLimit, shortDescriptionLimit, tagCharacterLimit } from '../scripts/constants';
 
 import fs from "fs-extra";
 import mockFs from 'mock-fs';
 import sharp from 'sharp';
-import { validatePartnerInfo } from '../scripts/validate-partners'; // Adjust the path as needed
+import { validatePartnerInfo } from '../scripts/validate-partners';
 
 jest.mock('sharp');
 jest.mock("fs-extra");
+
 describe('validatePartnerInfo', () => {
     const mockedSharp = sharp as jest.MockedFunction<typeof sharp>;
+    const mockedFs = fs as jest.Mocked<typeof fs>;
     const partnerPath = '/path/to/partner';
-    
-    const mockResults =  {
+
+    const mockResults = {
         'info.yaml': `
     name: "Mock Partner"
     badge: "mockBadge"
@@ -24,22 +25,32 @@ describe('validatePartnerInfo', () => {
     url: "https://mockpartner.com"
     featured: false
     `,
-    'banner.png': 'fake-image-data',
-    'thumbnail.png': 'fake-image-data',
+        [defaultBannerNameLight]: 'fake-image-data',
+        [defaultThumbnailNameLight]: 'fake-image-data',
+        [defaultBannerNameDark]: 'fake-image-data',
+        [defaultThumbnailNameDark]: 'fake-image-data',
     }
+
     beforeEach(() => {
         jest.resetAllMocks();
+        mockFs({
+            [partnerPath]: mockResults
+        });
     });
 
     afterEach(() => {
         mockFs.restore();
     });
 
-    it('should return an an array of error messages with one message, if path does not exist', async () => {
+    it('should validate partner info and return no errors for valid data', async () => {
+        mockedSharp.mockReturnValue({
+            metadata: jest.fn().mockResolvedValue({ width: 100, height: 100 })
+        } as any);
+
         const errors = await validatePartnerInfo(partnerPath);
-        expect(errors).toEqual([`info.yaml is missing in ${partnerPath}`]);
-    }
-    );
+        expect(errors).toHaveLength(0);
+    });
+
 
     it('should error if a required field is missing', async () => {
         mockFs({
@@ -54,8 +65,10 @@ describe('validatePartnerInfo', () => {
                   - "partner"
                 featured: false
                 `,
-                'banner.png': 'fake-image-data',
-                'thumbnail.png': 'fake-image-data',
+                'banner_light.png': 'fake-image-data',
+                'thumbnail_light.png': 'fake-image-data',
+                'banner_dark.png': 'fake-image-data',
+                'thumbnail_dark.png': 'fake-image-data',
             }
         });
 
@@ -85,7 +98,7 @@ describe('validatePartnerInfo', () => {
 
         mockFs({
             [partnerPath]: imagesMissing,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -94,14 +107,14 @@ describe('validatePartnerInfo', () => {
 
 
         const errors = await validatePartnerInfo(partnerPath);
-        expect(errors).toEqual(["Thumbnail image is missing", "Banner image is missing"]);
+        expect(errors).toEqual(["Light thumbnail image is missing", "Dark thumbnail image is missing", "Light banner image is missing", "Dark banner image is missing"]);
     });
 
     it('should log to the user an error if unable to read image dimensions', async () => {
 
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -109,14 +122,14 @@ describe('validatePartnerInfo', () => {
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
-        expect(errors).toEqual(["image metadata could not be read for /path/to/partner/thumbnail.png", "image metadata could not be read for /path/to/partner/banner.png"]);
+        expect(errors).toEqual(["image metadata could not be read for /path/to/partner/thumbnail_light.png", "image metadata could not be read for /path/to/partner/banner_light.png", "image metadata could not be read for /path/to/partner/thumbnail_dark.png", "image metadata could not be read for /path/to/partner/banner_dark.png"]);
     });
 
     it('should log to the user an error if unable to read image metadata', async () => {
 
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -126,12 +139,12 @@ describe('validatePartnerInfo', () => {
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
-        expect(errors).toEqual(["Error reading image metadata","Error reading image metadata"]);
+        expect(errors).toEqual(["Error reading image metadata", "Error reading image metadata", "Error reading image metadata", "Error reading image metadata"]);
     });
-    
+
 
     it('should return an a log to the user if the name exceeds a character length', async () => {
-        const mockResults =  {
+        const mockResults = {
             'info.yaml': `
         name: "Mock Partner really long name that exceeds the character limit"
         badge: "mockBadge"
@@ -143,12 +156,14 @@ describe('validatePartnerInfo', () => {
         url: "https://mockpartner.com"
         featured: false
         `,
-        'banner.png': 'fake-image-data',
-        'thumbnail.png': 'fake-image-data',
+            'banner_light.png': 'fake-image-data',
+            'thumbnail_light.png': 'fake-image-data',
+            'banner_dark.png': 'fake-image-data',
+            'thumbnail_dark.png': 'fake-image-data',
         }
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -158,7 +173,7 @@ describe('validatePartnerInfo', () => {
         const errors = await validatePartnerInfo(partnerPath);
         expect(errors).toEqual([`'name' exceeds ${nameLimit} characters`]);
     });
-    
+
     it('should return an error if info.yaml is missing', async () => {
         mockFs({
             [partnerPath]: {
@@ -191,7 +206,7 @@ describe('validatePartnerInfo', () => {
     });
 
     it('should return an error if tag char limit is reached', async () => {
-        const badTags =  {
+        const badTags = {
             'info.yaml': `
             name: "Mock Partner"
             badge: "mockBadge"
@@ -203,9 +218,11 @@ describe('validatePartnerInfo', () => {
             url: "https://mockpartner.com"
             featured: false
             `,
-            'banner.png': 'fake-image-data',
-            'thumbnail.png': 'fake-image-data',
-            }
+            'banner_light.png': 'fake-image-data',
+            'thumbnail_light.png': 'fake-image-data',
+            'banner_dark.png': 'fake-image-data',
+            'thumbnail_dark.png': 'fake-image-data',
+        }
         mockFs({
             [partnerPath]: badTags
         });
@@ -219,7 +236,7 @@ describe('validatePartnerInfo', () => {
     });
 
     it('should return an error for invalid attributes in info.yaml', async () => {
-        
+
         mockFs({
             [partnerPath]: {
                 'info.yaml': {}
@@ -231,7 +248,7 @@ describe('validatePartnerInfo', () => {
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
-        expect(errors).toEqual( ["info.yaml contains invalid data in /path/to/partner"]);
+        expect(errors).toEqual(["info.yaml contains invalid data in /path/to/partner"]);
     });
 
     it('should error if image (banner) dimensions are too big', async () => {
@@ -244,13 +261,13 @@ describe('validatePartnerInfo', () => {
         } as any);
 
         const errors = await validatePartnerInfo(partnerPath);
-        const expectedErrors = [`image dimensions exceed ${maxThumbnailWidth}x${maxThumbnailHeight} pixels`]
+        const expectedErrors = [`image dimensions exceed ${maxThumbnailWidth}x${maxThumbnailHeight} pixels`, `image dimensions exceed ${maxThumbnailWidth}x${maxThumbnailHeight} pixels`]
         expect(errors).toEqual(expectedErrors);
 
     });
 
     it('should return an a log to the user if the long description exceeds a character length', async () => {
-        const mockResults =  {
+        const mockResults = {
             'info.yaml': `
         name: "name"
         badge: "mockBadge"
@@ -262,12 +279,14 @@ describe('validatePartnerInfo', () => {
         url: "https://mockpartner.com"
         featured: false
         `,
-        'banner.png': 'fake-image-data',
-        'thumbnail.png': 'fake-image-data',
+            'banner_light.png': 'fake-image-data',
+            'thumbnail_light.png': 'fake-image-data',
+            'banner_dark.png': 'fake-image-data',
+            'thumbnail_dark.png': 'fake-image-data',
         }
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -277,9 +296,9 @@ describe('validatePartnerInfo', () => {
         const errors = await validatePartnerInfo(partnerPath);
         expect(errors).toEqual([`'long_description' exceeds ${longDescriptionLimit} characters`]);
     });
-    
+
     it('should return an a log to the user if the short description exceeds a character length', async () => {
-        const mockResults =  {
+        const mockResults = {
             'info.yaml': `
         name: "name"
         badge: "mockBadge"
@@ -291,12 +310,14 @@ describe('validatePartnerInfo', () => {
         url: "https://mockpartner.com"
         featured: false
         `,
-        'banner.png': 'fake-image-data',
-        'thumbnail.png': 'fake-image-data',
+            'banner_light.png': 'fake-image-data',
+            'thumbnail_light.png': 'fake-image-data',
+            'banner_dark.png': 'fake-image-data',
+            'thumbnail_dark.png': 'fake-image-data',
         }
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -308,7 +329,7 @@ describe('validatePartnerInfo', () => {
     });
 
     it('Partner must have atleast one tag', async () => {
-        const mockResults =  {
+        const mockResults = {
             'info.yaml': `
         name: "name"
         badge: "mockBadge"
@@ -318,12 +339,14 @@ describe('validatePartnerInfo', () => {
         url: "https://mockpartner.com"
         featured: false
         `,
-        'banner.png': 'fake-image-data',
-        'thumbnail.png': 'fake-image-data',
+            'banner_light.png': 'fake-image-data',
+            'thumbnail_light.png': 'fake-image-data',
+            'banner_dark.png': 'fake-image-data',
+            'thumbnail_dark.png': 'fake-image-data',
         }
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -335,8 +358,8 @@ describe('validatePartnerInfo', () => {
     });
 
     it('should not exceed the maximum number of tags', async () => {
-        const mockResults =  {
-        'info.yaml': `
+        const mockResults = {
+            'info.yaml': `
         name: "name"
         badge: "mockBadge"
         short_description: "short desc"
@@ -351,12 +374,14 @@ describe('validatePartnerInfo', () => {
         url: "https://mockpartner.com"
         featured: false
         `,
-        'banner.png': 'fake-image-data',
-        'thumbnail.png': 'fake-image-data',
+            'banner_light.png': 'fake-image-data',
+            'thumbnail_light.png': 'fake-image-data',
+            'banner_dark.png': 'fake-image-data',
+            'thumbnail_dark.png': 'fake-image-data',
         }
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -368,8 +393,8 @@ describe('validatePartnerInfo', () => {
     });
 
     it('should log if provided url is not https', async () => {
-        const mockResults =  {
-        'info.yaml': `
+        const mockResults = {
+            'info.yaml': `
         name: "name"
         badge: "mockBadge"
         short_description: "short desc"
@@ -381,12 +406,14 @@ describe('validatePartnerInfo', () => {
         url: "http://mockpartner.com"
         featured: false
         `,
-        'banner.png': 'fake-image-data',
-        'thumbnail.png': 'fake-image-data',
+            'banner_light.png': 'fake-image-data',
+            'thumbnail_light.png': 'fake-image-data',
+            'banner_dark.png': 'fake-image-data',
+            'thumbnail_dark.png': 'fake-image-data',
         }
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
@@ -398,7 +425,7 @@ describe('validatePartnerInfo', () => {
     });
 
     it('should log if it couldn\'t parse the url', async () => {
-        const mockResults =  {
+        const mockResults = {
             'info.yaml': `
             name: "name"
             badge: "mockBadge"
@@ -411,19 +438,21 @@ describe('validatePartnerInfo', () => {
             url: "https://forcefail.com"
             featured: false
             `,
-            'banner.png': 'fake-image-data',
-            'thumbnail.png': 'fake-image-data',
-            }
-        
+            'banner_light.png': 'fake-image-data',
+            'thumbnail_light.png': 'fake-image-data',
+            'banner_dark.png': 'fake-image-data',
+            'thumbnail_dark.png': 'fake-image-data',
+        }
+
         mockFs({
             [partnerPath]: mockResults,
-            
+
         });
 
         mockedSharp.mockReturnValue({
             metadata: jest.fn().mockResolvedValue({ width: 100, height: 100 }),
         } as any);
-            
+
         const originalURL = global.URL; // Save original URL
         //@ts-ignore
         global.URL = jest.fn(() => {
@@ -433,10 +462,10 @@ describe('validatePartnerInfo', () => {
 
         const errors = await validatePartnerInfo(partnerPath);
         console.log('Errors:', errors);
-        
+
         expect(errors).toEqual([`'url' is not a valid URL`]);
 
         global.URL = originalURL;
     });
-    
+
 });

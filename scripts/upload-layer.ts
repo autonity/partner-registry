@@ -1,11 +1,14 @@
-import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import dotenv from 'dotenv'
-import { buildPartnersJson, getPartnerDirectories } from './generate-partners'
-import { validatePartnerInfo } from './validate-partners'
-import path from 'path'
 import * as fs from 'fs'
+
+import { DeleteObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { buildPartnersJson, getPartnerDirectories } from './generate-partners'
+
+import dotenv from 'dotenv'
 import { getJsonfromYaml } from './translation-layer'
 import { partnerFileName } from './constants'
+import path from 'path'
+import { validatePartnerInfo } from './validate-partners'
+
 dotenv.config()
 
 const REGION = process.env.REGION ?? ''
@@ -26,9 +29,9 @@ const cleanupUnusedImages = async (s3Client: S3Client, currentPartnerNames: Set<
             Bucket: BUCKET_NAME,
             Prefix: 'images/'
         }
-        
+
         const listedObjects = await s3Client.send(new ListObjectsV2Command(listParams))
-        
+
         if (!listedObjects.Contents) return
 
         for (const item of listedObjects.Contents) {
@@ -81,7 +84,7 @@ const run = async () => {
         console.log('Proceeding with upload...')
         const partners = buildPartnersJson(partnerDirectories)
         const currentPartnerNames = new Set(partners.map(partner => partner.name))
-        
+
         const uploadParams = {
             Bucket: BUCKET_NAME,
             Key: OBJECT_KEY,
@@ -90,18 +93,38 @@ const run = async () => {
         }
         const data = await s3Client.send(new PutObjectCommand(uploadParams))
         console.log(`Partners uploaded. ETag: ${data.ETag}`)
-        
+
         console.log('Proceeding with image uploads...')
         for (const partnerDir of partnerDirectories) {
-            const {name } = getJsonfromYaml(`${partnerDir}/${partnerFileName}`)
-            const thumbnail = path.join(partnerDir, 'thumbnail.png')
-            const thumbnailKey = `images/${name}/thumbnail.png`
-            
-            const banner = path.join(partnerDir, 'banner.png')
-            const bannerKey = `images/${name}/banner.png`
-            
-            await uploadFile(s3Client, thumbnail, thumbnailKey)
-            await uploadFile(s3Client, banner, bannerKey)
+            const { name } = getJsonfromYaml(`${partnerDir}/${partnerFileName}`)
+
+            console.log('Uploading images for:', name)
+
+            // Light thumbnail
+            const thumbnailLight = path.join(partnerDir, 'thumbnail_light.png')
+            const thumbnailLightKey = `images/${name}/thumbnail_light.png`
+
+            // Dark thumbnail
+            const thumbnailDark = path.join(partnerDir, 'thumbnail_dark.png')
+            const thumbnailDarkKey = `images/${name}/thumbnail_dark.png`
+
+            // Light Banner
+            const bannerLight = path.join(partnerDir, 'banner_light.png')
+            const bannerLightKey = `images/${name}/banner_light.png`
+
+            // Dark Banner
+            const bannerDark = path.join(partnerDir, 'banner_dark.png')
+            const bannerDarkKey = `images/${name}/banner_dark.png`
+
+            //upload light thumbnail
+            await uploadFile(s3Client, thumbnailLight, thumbnailLightKey)
+            //upload dark thumbnail
+            await uploadFile(s3Client, thumbnailDark, thumbnailDarkKey)
+
+            //upload light banner
+            await uploadFile(s3Client, bannerLight, bannerLightKey)
+            //upload dark banner
+            await uploadFile(s3Client, bannerDark, bannerDarkKey)
         }
 
         console.log('Cleaning up unused images...')
