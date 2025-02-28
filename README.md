@@ -45,4 +45,8 @@ The `banner_dark.png` must be no more than 274x105px. This is used when your pro
 -   **Title Format**: `Add <Project Name> to Partner Registry`
 -   **Example**: `Add MyProject to Partner Registry`
 
-If your PR fails validation checks, please check the github action, it will have the reason why
+---
+
+If your PR fails validation checks, please check the github action, it will have the reason why. This will be in the **Check partners are valid** section of the github action.
+
+![Failure bot comment](resources/tutorial/gha.png)
