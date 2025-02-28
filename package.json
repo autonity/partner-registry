@@ -1,6 +1,6 @@
 {
     "name": "autonity-partner-registry",
-    "version": "1.0.0",
+    "version": "1.0.5",
     "description": "Sandbox for testing Github features relevant to Engineering",
     "scripts": {
         "build": "npx tsc",
