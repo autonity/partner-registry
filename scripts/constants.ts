@@ -1,6 +1,9 @@
 export const partnerFileName = 'info.yaml'
-export const defaultThumbnailName = 'thumbnail.png'
-export const defaultBannerName = 'banner.png'
+
+export const defaultThumbnailNameLight = 'thumbnail_light.png'
+export const defaultBannerNameLight = 'banner_light.png'
+export const defaultThumbnailNameDark = 'thumbnail_dark.png'
+export const defaultBannerNameDark = 'banner_dark.png'
 export const partnerDir = '../partners'
 export const partnerStorageName = 'partners.json'
 export const examplePartnerName = 'example'
