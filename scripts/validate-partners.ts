@@ -84,9 +84,10 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
             errorMessages.push(`Dark Banner image is not a PNG`)
         }
 
-        errorMessages = errorMessages.concat(await checkImageDimensions(fullThumbnailPathLight, maxThumbnailWidth, maxThumbnailHeight));
+        errorMessages = errorMessages.concat(await checkImageDimensionsExact(fullThumbnailPathLight, maxThumbnailWidth, maxThumbnailHeight));
         errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPathLight, maxBannerWidth, maxBannerHeight));
-        errorMessages = errorMessages.concat(await checkImageDimensions(fullThumbnailPathDark, maxThumbnailWidth, maxThumbnailHeight));
+
+        errorMessages = errorMessages.concat(await checkImageDimensionsExact(fullThumbnailPathDark, maxThumbnailWidth, maxThumbnailHeight));
         errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPathDark, maxBannerWidth, maxBannerHeight));
 
         // Check for character limits and valid types
@@ -105,7 +106,7 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
  * @param {string} filePath - The file path to the image.
  * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages if the image is invalid.
  */
-async function checkImageDimensions(filePath: string, maxWidth = maxThumbnailWidth, maxHeight = maxThumbnailHeight): Promise<string[]> {
+export async function checkImageDimensions(filePath: string, maxWidth = maxThumbnailWidth, maxHeight = maxThumbnailHeight): Promise<string[]> {
     const errorMessages: string[] = [];
     try {
         const { width, height } = await sharp(filePath).metadata();
@@ -121,6 +122,31 @@ async function checkImageDimensions(filePath: string, maxWidth = maxThumbnailWid
         return errorMessages;
     }
 }
+
+/**
+ * Checks if the image at the given file path matches the exact width and height.
+ *
+ * @param {string} filePath - The file path to the image.
+ * @param {number} exactWidth - The required width of the image.
+ * @param {number} exactHeight - The required height of the image.
+ * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages if the image does not match the exact dimensions.
+ */
+export async function checkImageDimensionsExact(filePath: string, exactWidth: number, exactHeight: number): Promise<string[]> {
+    const errorMessages: string[] = [];
+    try {
+        const { width, height } = await sharp(filePath).metadata();
+
+        if (!width || !height) {
+            errorMessages.push(`Image metadata could not be read for ${filePath}`);
+        } else if (width !== exactWidth || height !== exactHeight) {
+            errorMessages.push(`Image dimensions for ${filePath} are ${width}x${height}, but expected ${exactWidth}x${exactHeight}`);
+        }
+    } catch (error) {
+        errorMessages.push(`Error reading image metadata for ${filePath}: ${error}`);
+    }
+    return errorMessages;
+}
+
 
 /**
  * Validates partner fields such as name, description, tags, and URL.
