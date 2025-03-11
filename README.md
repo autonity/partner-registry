@@ -1,39 +1,39 @@
 [![Scheduled CDN Upload](https://github.com/autonity/partner-registry/actions/workflows/scheduled-deployment.yaml/badge.svg)](https://github.com/autonity/partner-registry/actions/workflows/scheduled-deployment.yaml) [![Tests](https://github.com/autonity/partner-registry/actions/workflows/unit-tests.yaml/badge.svg?branch=develop)](https://github.com/autonity/partner-registry/actions/workflows/unit-tests.yaml)
+# Adding Your Project to the Ecosystem Partner Registry
 
-# Adding your Project to the ECOSYSTEM Partner Registry
+To get started, fork the partner-registry repository, clone it locally, and open it in your favorite editor.
 
-Firstly you need to fork the registry [repo](https://github.com/autonity/partner-registry), clone it locally and open in your favorite editor.
+## Step 1: Create Your Project Folder inside the `partners/` Folder
+Within the `partners/` folder, create a new folder named after your project.
 
-### Step 1: Select the `partners/` folder.
+## Step 2: Add Your Project Assets
+Inside your project folder, include the following files:
 
-### Step 2: In the `partners/` folder create a folder named according to your project.
-
-### Step 3: In your project folder you need to add light and dark images and a config file.
-These are:
-#### - info.yaml
+#### 1. info.yaml
+Use this file to provide your project details. Example:
 
 ```yaml
-name: 'Test Partner' # 20 characters max
-short_description: 'Test Partner' # 60 character max description
-long_description: 'This is a test and is ignored by the uploader' # 175 character max
-tags: # max 3 tags, the most relevant should be listed first
-    - 'defi' # no more then 12 characters per tag
-    - 'infra'
-url: 'https://www.autonity.org' # must be a valid https url
+name: 'Test Partner'  # Maximum 20 characters
+short_description: 'Test Partner'  # Maximum 60 characters
+long_description: 'This is a test and is ignored by the uploader'  # Maximum 175 characters
+tags:  # List up to 3 tags, most relevant first; each tag must be no more than 12 characters
+  - 'defi'
+  - 'infra'
+url: 'https://www.autonity.org'  # Must be a valid HTTPS URL
 ```
+#### 2. Thumbnails
+thumbnail_light.png (for light theme) and thumbnail_dark.png (for dark theme)
+These images must be exactly 160x160 pixels. They are displayed in the grid list view.
+#### 3. Banners
+banner_light.png (for light theme) and banner_dark.png (for dark theme)
+These images must be no larger than 274x105 pixels. They are used when your product appears in the featured carousel.
 
-#### - thumbnail_light.png & thumbnail_dark.png:
-These must be **no more** than 196x160px. This is used when viewing your project in the grid list.
+Note: Files ending with `_light.png` are for the light theme, and those ending with `_dark.png` are for the dark theme.
 
-#### - banner_light.png & banner_dark.png
-These must be **no more** than 274x105px. This is used when your product is featured and is in the carousel list.
+## Step 3: Create a Pull Request
+Submit a pull request with your new project folder and assets.
 
-### Step 4: Create a pull-request containing your updated data.
-
-### Step 5: Submit Your Pull Request
-
----
-
-If your PR fails validation checks, please check the github action, it will have the reason why. This will be in the **Check partners are valid** section of the github action.
+## Step 4: Monitor Your Pull Request
+If the validation checks fail, review the GitHub Actions output (look under the Check partners are valid section) to see the error details.
 
 ![Failure bot comment](resources/tutorial/gha.png)
