@@ -131,17 +131,23 @@ export async function checkImageDimensions(
         if (!width || !height) {
             errorMessages.push(`Image metadata could not be read for ${filePath}`);
         } else {
-            if (isWidthExact && width !== maxWidth) {
-                errorMessages.push(`Image width is ${width}px, but expected ${maxWidth}px`);
+            if (isWidthExact) {
+                if (width !== maxWidth) {
+                    errorMessages.push(`Image width is ${width}px, but expected exactly ${maxWidth}px`);
+                }
+            } else {
+                if (width > maxWidth) {
+                    errorMessages.push(`Image width is ${width}px, which exceeds the maximum allowed ${maxWidth}px`);
+                }
             }
 
-            if (isHeightExact && height !== maxHeight) {
-                errorMessages.push(`Image height is ${height}px, but expected ${maxHeight}px`);
-            }
-
-            if (!isWidthExact && !isHeightExact) {
-                if (width > maxWidth || height > maxHeight) {
-                    errorMessages.push(`Image dimensions ${width}x${height}px exceed maximum ${maxWidth}x${maxHeight}px`);
+            if (isHeightExact) {
+                if (height !== maxHeight) {
+                    errorMessages.push(`Image height is ${height}px, but expected exactly ${maxHeight}px`);
+                }
+            } else {
+                if (height > maxHeight) {
+                    errorMessages.push(`Image height is ${height}px, which exceeds the maximum allowed ${maxHeight}px`);
                 }
             }
         }
