@@ -26,7 +26,7 @@ thumbnail_light.png (for light theme) and thumbnail_dark.png (for dark theme)
 These images must be exactly 160x160 pixels. They are displayed in the grid list view.
 #### 3. Banners
 banner_light.png (for light theme) and banner_dark.png (for dark theme)
-These images must be no larger than 274px wide. But **must** be 60px high. They are used when your product appears in the featured carousel.
+These images must be no larger than 282px wide. But **must** be 60px high. They are used when your product appears in the featured carousel.
 
 Note: Files ending with `_light.png` are for the light theme, and those ending with `_dark.png` are for the dark theme.
 
