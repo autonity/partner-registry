@@ -15,4 +15,4 @@ export const maxNumberOfTags = 3
 export const maxThumbnailWidth = 160
 export const maxThumbnailHeight = 160
 export const maxBannerWidth = 274
-export const maxBannerHeight = 105
+export const maxBannerHeight = 60

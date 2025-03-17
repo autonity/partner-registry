@@ -85,10 +85,10 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
         }
 
         errorMessages = errorMessages.concat(await checkImageDimensionsExact(fullThumbnailPathLight, maxThumbnailWidth, maxThumbnailHeight));
-        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPathLight, maxBannerWidth, maxBannerHeight));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPathLight, maxBannerWidth, maxBannerHeight, false, true));
 
         errorMessages = errorMessages.concat(await checkImageDimensionsExact(fullThumbnailPathDark, maxThumbnailWidth, maxThumbnailHeight));
-        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPathDark, maxBannerWidth, maxBannerHeight));
+        errorMessages = errorMessages.concat(await checkImageDimensions(fullBannerPathDark, maxBannerWidth, maxBannerHeight, false, true));
 
         // Check for character limits and valid types
         validatePartnerFields(partnerInfo, errorMessages);
@@ -106,21 +106,56 @@ export async function validatePartnerInfo(partnerPath: string): Promise<string[]
  * @param {string} filePath - The file path to the image.
  * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages if the image is invalid.
  */
-export async function checkImageDimensions(filePath: string, maxWidth = maxThumbnailWidth, maxHeight = maxThumbnailHeight): Promise<string[]> {
+/**
+ * Checks the dimensions of the partner's logo.
+ * 
+ * @param {string} filePath - The file path to the image.
+ * @param {number} maxWidth - The maximum allowed width.
+ * @param {boolean} isWidthExact - Whether the width must match exactly.
+ * @param {number} maxHeight - The maximum allowed height.
+ * @param {boolean} isHeightExact - Whether the height must match exactly.
+ * @returns {Promise<string[]>} - Returns a promise that resolves with an array of error messages if the image is invalid.
+ */
+export async function checkImageDimensions(
+    filePath: string,
+    maxWidth = maxThumbnailWidth,
+    maxHeight = maxThumbnailHeight,
+    isWidthExact = false,
+    isHeightExact = false
+): Promise<string[]> {
     const errorMessages: string[] = [];
+
     try {
         const { width, height } = await sharp(filePath).metadata();
 
         if (!width || !height) {
-            errorMessages.push(`image metadata could not be read for ${filePath}`);
-        } else if (width > maxWidth || height > maxHeight) {
-            errorMessages.push(`image dimensions exceed ${maxWidth}x${maxHeight} pixels`);
+            errorMessages.push(`Image metadata could not be read for ${filePath}`);
+        } else {
+            if (isWidthExact) {
+                if (width !== maxWidth) {
+                    errorMessages.push(`Image width is ${width}px, but expected exactly ${maxWidth}px`);
+                }
+            } else {
+                if (width > maxWidth) {
+                    errorMessages.push(`Image width is ${width}px, which exceeds the maximum allowed ${maxWidth}px`);
+                }
+            }
+
+            if (isHeightExact) {
+                if (height !== maxHeight) {
+                    errorMessages.push(`Image height is ${height}px, but expected exactly ${maxHeight}px`);
+                }
+            } else {
+                if (height > maxHeight) {
+                    errorMessages.push(`Image height is ${height}px, which exceeds the maximum allowed ${maxHeight}px`);
+                }
+            }
         }
     } catch (error) {
-        errorMessages.push('Error reading image metadata');
-    } finally {
-        return errorMessages;
+        errorMessages.push(`Error reading image metadata: ${(error as Error).message}`);
     }
+
+    return errorMessages;
 }
 
 /**
